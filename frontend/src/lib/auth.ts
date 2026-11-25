@@ -8,7 +8,42 @@ export async function obterToken(): Promise<string | null> {
 }
 
 export async function sair() {
+  marcarSenhaPendente(false);
   await supabaseAuth.signOut();
+}
+
+/**
+ * Link de convite ou de redefinição abre uma sessão antes de a senha existir.
+ * Enquanto a senha não for salva, a aba fica presa na tela "defina sua senha".
+ */
+const CHAVE_SENHA_PENDENTE = 'echeck:senha-pendente';
+
+export function marcarSenhaPendente(pendente: boolean) {
+  if (typeof window === 'undefined') return;
+  if (pendente) sessionStorage.setItem(CHAVE_SENHA_PENDENTE, '1');
+  else sessionStorage.removeItem(CHAVE_SENHA_PENDENTE);
+}
+
+export function senhaPendente(): boolean {
+  return typeof window !== 'undefined' && sessionStorage.getItem(CHAVE_SENHA_PENDENTE) === '1';
+}
+
+/**
+ * Mensagens de login (CONTEXT.md seção 8.2). EX01 vem do Supabase Auth, não da API;
+ * EX02 e EX03 também são mostradas na tela de login depois de um redirecionamento.
+ */
+export const MENSAGENS_LOGIN = {
+  EX01: 'E-mail ou senha incorretos.',
+  EX02: 'Seu acesso está desativado. Procure o administrador.',
+  EX03: 'Sua sessão expirou. Entre novamente.',
+  EX22: 'Algo deu errado. Tente novamente.',
+} as const;
+
+export type MotivoLogin = keyof typeof MENSAGENS_LOGIN;
+
+/** Só aceita caminhos internos (evita redirecionar para outro site). */
+export function destinoSeguro(caminho: string | null | undefined): string {
+  return caminho && caminho.startsWith('/') && !caminho.startsWith('//') && caminho !== '/login' ? caminho : '/painel';
 }
 
 const TODOS = Object.values(TipoUsuario);
