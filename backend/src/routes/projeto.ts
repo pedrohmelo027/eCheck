@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { MaquinaController } from '../controllers/MaquinaController';
 import { ProjetoController } from '../controllers/ProjetoController';
+import { RecebimentoController } from '../controllers/RecebimentoController';
 import { autenticar } from '../middlewares/autenticar';
 import { autorizar } from '../middlewares/autorizar';
 import { TipoUsuario } from '../models/enums';
@@ -20,6 +21,11 @@ rotasProjeto.delete('/:id', engenheiro, ProjetoController.excluir);
 
 // UC06 — liberar para produção
 rotasProjeto.patch('/:id/liberar', engenheiro, ProjetoController.liberar);
+
+// UC07 — baixa pelo projeto inteiro (prévia e gravação)
+const encarregado = autorizar(TipoUsuario.ENCARREGADO);
+rotasProjeto.post('/:id/recebimentos/previa', encarregado, RecebimentoController.simularBaixaProjeto);
+rotasProjeto.post('/:id/recebimentos', encarregado, RecebimentoController.darBaixaProjeto);
 
 // UC05 — cadastro de máquina no projeto
 rotasProjeto.post('/:id/maquinas', engenheiro, MaquinaController.cadastrar);

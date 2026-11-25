@@ -1,7 +1,7 @@
 import { supabase } from '../config/supabase';
 import { AppError } from '../errors/AppError';
 import { StatusItem, StatusProjeto } from '../models/enums';
-import { buscarTodas, emBlocos, falhaBanco } from './util';
+import { buscarTodas, emBlocos, escaparLike, falhaBanco } from './util';
 
 export interface ItemLinha {
   id: string;
@@ -49,6 +49,39 @@ export const ItemRepository = {
       if (filtro.maquinaId) consulta = consulta.eq('maquina_id', filtro.maquinaId);
       return consulta.order('data_solicitacao').order('criado_em').range(de, ate);
     });
+  },
+
+  /** UC07 passo 2: onde o desenho (completo ou parcial) aparece em projetos LIBERADOS (RN10). */
+  async buscarPorDesenhoEmLiberados(desenho: string): Promise<ItemSaldoLinha[]> {
+    return buscarTodas<ItemSaldoLinha>((de, ate) =>
+      supabase()
+        .from('vw_itens_saldo')
+        .select('*')
+        .eq('projeto_status', StatusProjeto.LIBERADO)
+        .ilike('desenho', `%${escaparLike(desenho)}%`)
+        .order('projeto_codigo')
+        .order('desenho')
+        .order('data_solicitacao')
+        .order('criado_em')
+        .range(de, ate),
+    );
+  },
+
+  /**
+   * Solicitações de um desenho (exato, sem diferenciar maiúsculas) no projeto, da mais antiga
+   * para a mais nova; em datas iguais, pela ordem de cadastro (RN14).
+   */
+  async listarDoProjetoPorDesenho(projetoId: string, desenho: string): Promise<ItemSaldoLinha[]> {
+    return buscarTodas<ItemSaldoLinha>((de, ate) =>
+      supabase()
+        .from('vw_itens_saldo')
+        .select('*')
+        .eq('projeto_id', projetoId)
+        .ilike('desenho', escaparLike(desenho))
+        .order('data_solicitacao')
+        .order('criado_em')
+        .range(de, ate),
+    );
   },
 
   async buscarSaldo(id: string): Promise<ItemSaldoLinha | null> {

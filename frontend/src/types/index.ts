@@ -91,7 +91,46 @@ export interface Item {
   quantidadeRecebida: number;
   saldo: number;
   status: StatusItem;
+  percentualRecebido: number;
   criadoEm: string;
+}
+
+/** UC07 — uma remessa. Espelha RecebimentoDTO do back-end. */
+export interface Recebimento {
+  id: string;
+  itemId: string;
+  quantidade: number;
+  observacao: string | null;
+  registradoPor: string;
+  registradoEm: string;
+  atualizadoPor: string | null;
+  atualizadoEm: string | null;
+  estornado: boolean;
+  estornadoPor: string | null;
+  estornadoEm: string | null;
+}
+
+/** Aviso que não bloqueia: quantidade acima do saldo (EX16). */
+export interface Aviso {
+  codigo: 'EX16';
+  mensagem: string;
+}
+
+export interface ResultadoBaixa {
+  recebimento: Recebimento;
+  item: Item;
+  aviso: Aviso | null;
+}
+
+/** Prévia (e resultado) da baixa pelo projeto inteiro (RN14). */
+export interface SimulacaoBaixaProjeto {
+  desenho: string;
+  quantidadeInformada: number;
+  quantidadeRegistrada: number;
+  excedente: number;
+  distribuicao: { item: Item; quantidade: number }[];
+  aviso: Aviso | null;
+  recebimentos?: Recebimento[];
 }
 
 export const ROTULO_STATUS_ITEM: Record<StatusItem, string> = {
