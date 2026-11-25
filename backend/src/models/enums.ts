@@ -1,0 +1,17 @@
+export enum TipoUsuario {
+  ADMINISTRADOR = 'ADMINISTRADOR',
+  ENGENHEIRO = 'ENGENHEIRO',
+  ENCARREGADO = 'ENCARREGADO',
+  USUARIO = 'USUARIO',
+}
+
+export enum StatusProjeto {
+  EM_CADASTRO = 'EM_CADASTRO',
+  LIBERADO = 'LIBERADO',
+}
+
+export enum StatusItem {
+  PENDENTE = 'PENDENTE',
+  PARCIAL = 'PARCIAL',
+  COMPLETO = 'COMPLETO',
+}
