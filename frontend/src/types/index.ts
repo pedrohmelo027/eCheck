@@ -25,6 +25,23 @@ export interface RespostaErro {
   detalhes?: unknown[];
 }
 
+/** Usuário como a API devolve em /usuarios (UC01). Espelha UsuarioDTO do back-end. */
+export interface Usuario {
+  id: string;
+  nome: string;
+  email: string;
+  tipo: TipoUsuario;
+  ativo: boolean;
+  criadoEm: string;
+}
+
+export const ROTULO_TIPO: Record<TipoUsuario, string> = {
+  [TipoUsuario.ADMINISTRADOR]: 'Administrador',
+  [TipoUsuario.ENGENHEIRO]: 'Engenheiro',
+  [TipoUsuario.ENCARREGADO]: 'Encarregado',
+  [TipoUsuario.USUARIO]: 'Usuário',
+};
+
 /** Usuário logado, como devolvido por GET /auth/me (UC02). */
 export interface UsuarioLogado {
   id: string;

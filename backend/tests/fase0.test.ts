@@ -11,7 +11,9 @@ import { TipoUsuario } from '../src/models/enums';
 const getUser = jest.fn();
 const buscarPorId = jest.fn();
 jest.mock('../src/config/supabase', () => ({ supabase: () => ({ auth: { getUser } }) }));
-jest.mock('../src/repositories/UsuarioRepository', () => ({ UsuarioRepository: { buscarPorId } }));
+jest.mock('../src/repositories/UsuarioRepository', () => ({
+  UsuarioRepository: { buscarPorId: (...args: unknown[]) => buscarPorId(...args) },
+}));
 
 import { autenticar } from '../src/middlewares/autenticar';
 
