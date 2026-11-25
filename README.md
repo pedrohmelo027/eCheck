@@ -73,13 +73,13 @@ Next.js (View) ──HTTPS + JWT──► Express: rotas → middlewares → con
       └───────────── login ─────────────────────────────────────────────────────────────────────► Supabase Auth
 ```
 
-## Repositórios
+## Estrutura do repositório
 
-O projeto é dividido em duas pastas independentes, cada uma com o próprio repositório:
+O projeto fica num único repositório, dividido em duas pastas independentes (cada uma com o próprio `package.json` e `.env`):
 
 ```text
-echeck-backend/    # API REST: routes, middlewares, controllers, models, repositories, migrations, testes
-echeck-frontend/   # Next.js: app (telas), components, services (chamadas à API), types
+backend/    # API REST: routes, middlewares, controllers, models, repositories, migrations, testes
+frontend/   # Next.js: app (telas), components, services (chamadas à API), types
 ```
 
 ## Como rodar
@@ -92,7 +92,7 @@ echeck-frontend/   # Next.js: app (telas), components, services (chamadas à API
 ### Back-end
 
 ```bash
-cd echeck-backend
+cd backend
 npm install
 cp .env.example .env   # SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, PORT, FRONTEND_URL
 npm run dev
@@ -101,7 +101,7 @@ npm run dev
 ### Front-end
 
 ```bash
-cd echeck-frontend
+cd frontend
 npm install
 cp .env.example .env.local   # NEXT_PUBLIC_API_URL, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY
 npm run dev

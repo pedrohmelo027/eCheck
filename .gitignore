@@ -1,0 +1,5 @@
+# Estado local de plugins
+.omc/
+
+# Cada pasta (backend/, frontend/) tem o próprio .gitignore
+# com node_modules, builds e arquivos .env.
