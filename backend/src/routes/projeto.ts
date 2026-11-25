@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { MaquinaController } from '../controllers/MaquinaController';
 import { ProjetoController } from '../controllers/ProjetoController';
 import { autenticar } from '../middlewares/autenticar';
 import { autorizar } from '../middlewares/autorizar';
@@ -16,3 +17,6 @@ rotasProjeto.get('/:id', autorizar(), ProjetoController.detalhar);
 rotasProjeto.post('/', engenheiro, ProjetoController.cadastrar);
 rotasProjeto.put('/:id', engenheiro, ProjetoController.alterar);
 rotasProjeto.delete('/:id', engenheiro, ProjetoController.excluir);
+
+// UC05 — cadastro de máquina no projeto
+rotasProjeto.post('/:id/maquinas', engenheiro, MaquinaController.cadastrar);

@@ -1,4 +1,14 @@
-import { ROTULO_STATUS_PROJETO, StatusProjeto } from '@/types';
+import { ROTULO_STATUS_ITEM, ROTULO_STATUS_PROJETO, StatusItem, StatusProjeto } from '@/types';
+
+const CORES_STATUS_ITEM: Record<StatusItem, string> = {
+  [StatusItem.PENDENTE]: 'bg-zinc-200 text-zinc-700',
+  [StatusItem.PARCIAL]: 'bg-amber-100 text-amber-800',
+  [StatusItem.COMPLETO]: 'bg-green-100 text-green-800',
+};
+
+export function SeloStatusItem({ status }: { status: StatusItem }) {
+  return <span className={`rounded-full px-2 py-0.5 text-xs ${CORES_STATUS_ITEM[status]}`}>{ROTULO_STATUS_ITEM[status]}</span>;
+}
 
 /** Barra do percentual recebido. O número vem calculado da API. */
 export function BarraPercentual({ valor }: { valor: number }) {

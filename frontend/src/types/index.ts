@@ -73,6 +73,31 @@ export interface ProjetoDetalhe extends Projeto {
   maquinas: MaquinaResumo[];
 }
 
+/** UC05 — item com recebido, saldo e status. Espelha ItemDTO do back-end. */
+export interface Item {
+  id: string;
+  maquinaId: string;
+  maquina: string;
+  projetoId: string;
+  projeto: string;
+  projetoStatus: StatusProjeto;
+  desenho: string;
+  processo: string | null;
+  material: string | null;
+  quantidadeSolicitada: number;
+  dataSolicitacao: string; // AAAA-MM-DD
+  quantidadeRecebida: number;
+  saldo: number;
+  status: StatusItem;
+  criadoEm: string;
+}
+
+export const ROTULO_STATUS_ITEM: Record<StatusItem, string> = {
+  [StatusItem.PENDENTE]: 'Pendente',
+  [StatusItem.PARCIAL]: 'Parcial',
+  [StatusItem.COMPLETO]: 'Completo',
+};
+
 export const ROTULO_STATUS_PROJETO: Record<StatusProjeto, string> = {
   [StatusProjeto.EM_CADASTRO]: 'Em cadastro',
   [StatusProjeto.LIBERADO]: 'Liberado',

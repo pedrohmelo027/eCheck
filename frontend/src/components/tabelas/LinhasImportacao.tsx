@@ -1,5 +1,6 @@
 'use client';
 
+import { dataBr } from '@/lib/formatos';
 import type { LinhaPrevia } from '@/types';
 
 interface Props {
@@ -9,12 +10,6 @@ interface Props {
   marcadas: Set<number>;
   aoAlternar: (linha: number) => void;
   aoAlternarTodas: (linhas: number[], marcar: boolean) => void;
-}
-
-/** AAAA-MM-DD → DD/MM/AAAA, sem passar por Date (evita mudar o dia pelo fuso). */
-export function dataBr(iso: string) {
-  const [ano, mes, dia] = iso.split('-');
-  return `${dia}/${mes}/${ano}`;
 }
 
 /** Um grupo da pré-visualização (novas, já existem, possível correção), com um checkbox por linha. */
