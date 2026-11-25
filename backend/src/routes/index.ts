@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { rotasAuth } from './auth';
 import { rotasImportacao } from './importacao';
+import { rotasProjeto } from './projeto';
 import { rotasUsuario } from './usuario';
 
 export const rotas = Router();
@@ -12,4 +13,5 @@ rotas.get('/saude', (_req, res) => {
 
 rotas.use('/auth', rotasAuth);
 rotas.use('/importacoes', rotasImportacao);
+rotas.use('/projetos', rotasProjeto);
 rotas.use('/usuarios', rotasUsuario);

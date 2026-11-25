@@ -105,6 +105,17 @@ describe('FP — importar a planilha de teste', () => {
     const { data: importacao } = await supabase().from('importacoes').select('*').single();
     expect(importacao).toMatchObject({ status: 'CONFIRMADA', importado_por: ids.engenheiro, total_linhas: 8, linhas_validas: 8 });
   });
+
+  it('a ordem de cadastro segue a ordem das linhas (desempate da RN14), mesmo gravando tudo numa transação', async () => {
+    await importarTudo();
+    const { data: itens } = await supabase().from('vw_itens_saldo').select('desenho, quantidade_solicitada, criado_em').order('criado_em');
+    expect(new Set(itens!.map((i) => i.criado_em)).size).toBe(8);
+    expect(itens!.map((i) => `${i.desenho}:${i.quantidade_solicitada}`)).toEqual([
+      'TST-001:10', 'TST-002:4', 'TST-001:6', 'TST-003:20', 'TST-001:2', 'TST-001:5', 'TST-004:3', 'TST-005:1',
+    ]);
+    const { data: maquinas } = await supabase().from('maquinas').select('nome').order('criado_em');
+    expect(maquinas!.map((m) => m.nome)).toEqual(['Esteira Teste A', 'Alimentador Teste B', 'Mesa Teste C']);
+  });
 });
 
 describe('FA — fluxos alternativos', () => {

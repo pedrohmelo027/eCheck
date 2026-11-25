@@ -1,8 +1,10 @@
 import { AppError } from '../errors/AppError';
 import { UsuarioRepository } from '../repositories/UsuarioRepository';
 import type { ResumoConfirmacao } from '../repositories/ImportacaoRepository';
+import { ProjetoRepository, type DadosProjeto } from '../repositories/ProjetoRepository';
 import { TipoUsuario } from './enums';
 import { ImportacaoPlanilha, type Previa } from './ImportacaoPlanilha';
+import { Projeto } from './Projeto';
 import { Usuario } from './Usuario';
 
 /**
@@ -28,5 +30,27 @@ export class Engenheiro extends Usuario {
   /** UC03 passos 5–7: grava as linhas marcadas numa transação. */
   async confirmarImportacao(importacaoId: string, linhasMarcadas: number[]): Promise<ResumoConfirmacao> {
     return ImportacaoPlanilha.confirmar(importacaoId, linhasMarcadas, this.id);
+  }
+
+  /** UC04 FP: novo projeto entra EM_CADASTRO, com este engenheiro em criadoPor. RN06: código único. */
+  async cadastrarProjeto(dados: DadosProjeto): Promise<Projeto> {
+    if (await ProjetoRepository.buscarPorCodigo(dados.codigo)) throw new AppError('EX07');
+    const criado = await ProjetoRepository.inserir({ ...dados, criado_por: this.id });
+    return Projeto.buscar(criado.id);
+  }
+
+  /** UC04 FA1: altera código, nome e descrição. O status só muda pelo UC06. */
+  async alterarProjeto(id: string, dados: DadosProjeto): Promise<Projeto> {
+    await Projeto.buscar(id);
+    const dono = await ProjetoRepository.buscarPorCodigo(dados.codigo);
+    if (dono && dono.id !== id) throw new AppError('EX07');
+    await ProjetoRepository.atualizar(id, dados);
+    return Projeto.buscar(id);
+  }
+
+  /** UC04 FA2: exclui o projeto com máquinas e itens, só se nenhum item tiver recebimento (RN23). */
+  async excluirProjeto(id: string): Promise<void> {
+    await Projeto.buscar(id);
+    await ProjetoRepository.excluir(id);
   }
 }
