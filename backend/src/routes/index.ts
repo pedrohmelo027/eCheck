@@ -4,6 +4,7 @@ import { rotasImportacao } from './importacao';
 import { rotasItem } from './item';
 import { rotasMaquina } from './maquina';
 import { rotasProjeto } from './projeto';
+import { rotasRecebimento } from './recebimento';
 import { rotasUsuario } from './usuario';
 
 export const rotas = Router();
@@ -18,4 +19,5 @@ rotas.use('/importacoes', rotasImportacao);
 rotas.use('/projetos', rotasProjeto);
 rotas.use('/maquinas', rotasMaquina);
 rotas.use('/itens', rotasItem);
+rotas.use('/recebimentos', rotasRecebimento);
 rotas.use('/usuarios', rotasUsuario);
