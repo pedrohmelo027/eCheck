@@ -25,6 +25,11 @@ export const projetosService = {
     return api<Projeto>(`/projetos/${id}`, { metodo: 'PUT', corpo: dados });
   },
 
+  /** UC06 — libera o projeto inteiro para receber material. Não pode ser desfeito. */
+  liberar(id: string) {
+    return api<Projeto>(`/projetos/${id}/liberar`, { metodo: 'PATCH' });
+  },
+
   excluir(id: string) {
     return api<void>(`/projetos/${id}`, { metodo: 'DELETE' });
   },

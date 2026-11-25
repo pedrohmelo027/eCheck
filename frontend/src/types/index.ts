@@ -70,6 +70,8 @@ export interface MaquinaResumo {
 }
 
 export interface ProjetoDetalhe extends Projeto {
+  criadoPorNome: string | null;
+  liberadoPorNome: string | null;
   maquinas: MaquinaResumo[];
 }
 

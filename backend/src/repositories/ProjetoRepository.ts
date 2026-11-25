@@ -70,6 +70,21 @@ export const ProjetoRepository = {
   },
 
   /**
+   * Muda para LIBERADO só se ainda estiver EM_CADASTRO (atômico: duas liberações ao mesmo tempo
+   * não passam as duas). Devolve false se o projeto já estava liberado.
+   */
+  async liberar(id: string, engenheiroId: string): Promise<boolean> {
+    const { data, error } = await supabase()
+      .from('projetos')
+      .update({ status: StatusProjeto.LIBERADO, liberado_por: engenheiroId, liberado_em: new Date().toISOString() })
+      .eq('id', id)
+      .eq('status', StatusProjeto.EM_CADASTRO)
+      .select('id');
+    if (error) falha(error);
+    return (data ?? []).length === 1;
+  },
+
+  /**
    * Exclui o projeto com máquinas e itens (cascata). Se algum item tiver recebimento,
    * a chave estrangeira barra a exclusão inteira (RN23 → EX17).
    */

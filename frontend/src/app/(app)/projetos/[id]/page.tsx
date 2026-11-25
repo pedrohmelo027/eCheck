@@ -7,17 +7,18 @@ import { NomeForm } from '@/components/formularios/NomeForm';
 import { ItensMaquina } from '@/components/tabelas/ItensMaquina';
 import { Alerta } from '@/components/ui/Alerta';
 import { BarraPercentual, SeloStatusProjeto } from '@/components/ui/Indicadores';
+import { LiberarProjeto } from '@/components/ui/LiberarProjeto';
 import { ErroApi } from '@/services/api';
 import { maquinasService } from '@/services/maquinas';
 import { projetosService } from '@/services/projetos';
-import { StatusProjeto, type MaquinaResumo, type ProjetoDetalhe } from '@/types';
+import type { MaquinaResumo, ProjetoDetalhe } from '@/types';
 
 function mensagemDe(erro: unknown) {
   return erro instanceof ErroApi ? erro.message : 'Algo deu errado. Tente novamente.';
 }
 
 /**
- * Projeto com as máquinas e os itens (UC04 FA3, UC05). A liberação (UC06) entra nesta tela.
+ * Projeto com as máquinas e os itens (UC04 FA3, UC05) e a liberação para a produção (UC06).
  * Regras (nome único, recebimentos, quantidade mínima) ficam na API.
  */
 export default function ProjetoPage() {
@@ -60,6 +61,11 @@ export default function ProjetoPage() {
       throw e;
     }
   }, []);
+
+  async function liberar() {
+    await executar(() => projetosService.liberar(id), 'Projeto liberado para a produção.');
+    await recarregar();
+  }
 
   async function cadastrarMaquina(nome: string) {
     await executar(() => maquinasService.cadastrar(id, nome), `Máquina ${nome} cadastrada.`);
@@ -106,10 +112,9 @@ export default function ProjetoPage() {
             </div>
             <p className="text-zinc-700">{projeto.nome}</p>
             {projeto.descricao && <p className="text-sm text-zinc-500">{projeto.descricao}</p>}
-            {projeto.status === StatusProjeto.LIBERADO && (
-              <p className="text-sm text-zinc-500">Projeto liberado: máquinas e itens novos já entram aceitando baixa.</p>
-            )}
           </div>
+
+          <LiberarProjeto projeto={projeto} aoLiberar={liberar} />
 
           <div className="flex flex-wrap gap-6 rounded border border-zinc-200 bg-white p-4 text-sm">
             {[
