@@ -42,6 +42,42 @@ export const ROTULO_TIPO: Record<TipoUsuario, string> = {
   [TipoUsuario.USUARIO]: 'Usuário',
 };
 
+/** UC04 — projeto com totais. Espelha ProjetoDTO do back-end. */
+export interface Projeto {
+  id: string;
+  codigo: string;
+  nome: string;
+  descricao: string | null;
+  status: StatusProjeto;
+  criadoPor: string;
+  criadoEm: string;
+  liberadoPor: string | null;
+  liberadoEm: string | null;
+  totalMaquinas: number;
+  totalItens: number;
+  totalSolicitado: number;
+  totalRecebido: number;
+  percentualRecebido: number;
+}
+
+export interface MaquinaResumo {
+  id: string;
+  nome: string;
+  totalItens: number;
+  totalSolicitado: number;
+  totalRecebido: number;
+  percentualRecebido: number;
+}
+
+export interface ProjetoDetalhe extends Projeto {
+  maquinas: MaquinaResumo[];
+}
+
+export const ROTULO_STATUS_PROJETO: Record<StatusProjeto, string> = {
+  [StatusProjeto.EM_CADASTRO]: 'Em cadastro',
+  [StatusProjeto.LIBERADO]: 'Liberado',
+};
+
 /** UC03 — classificação de cada linha da planilha (RN25). */
 export type SituacaoLinha = 'NOVA' | 'JA_EXISTE' | 'POSSIVEL_CORRECAO';
 

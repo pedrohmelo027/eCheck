@@ -34,7 +34,9 @@ export async function garantirUsuariosFicticios(): Promise<Record<ChaveUsuario, 
       const { data, error } = await admin.createUser({ email: u.email, password: SENHA_FICTICIA, email_confirm: true });
       if (error) throw error;
       id = data.user.id;
-    } else {
+    } else if (!(await senhaPadraoFunciona(u.email))) {
+      // Só redefine se a senha mudou: trocar a senha derruba as sessões abertas
+      // (ex.: quem está testando pelo front enquanto os testes rodam).
       const { error } = await admin.updateUserById(id, { password: SENHA_FICTICIA });
       if (error) throw error;
     }
@@ -46,6 +48,15 @@ export async function garantirUsuariosFicticios(): Promise<Record<ChaveUsuario, 
     ids[u.chave] = id;
   }
   return ids;
+}
+
+async function senhaPadraoFunciona(email: string): Promise<boolean> {
+  try {
+    await entrar(email);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /** Faz login real no Supabase Auth com a anon key e devolve o JWT. */
