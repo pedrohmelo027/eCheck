@@ -1,4 +1,4 @@
-import { obterToken } from '@/lib/auth';
+import { obterToken, sair } from '@/lib/auth';
 import type { RespostaErro } from '@/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3333';
@@ -26,13 +26,21 @@ interface Opcoes {
   corpo?: unknown;
   /** Para upload (multipart), ex.: a planilha do UC03. */
   formulario?: FormData;
+  /**
+   * Padrão true: sessão expirada (EX03) ou usuário desativado (EX02) encerram a sessão
+   * e levam ao login (UC02 FE2 e FE3). A tela de login usa false para tratar sozinha.
+   */
+  tratarSessao?: boolean;
 }
 
 /**
  * Chama a API com o JWT da sessão no header Authorization.
  * Em erro, lança ErroApi com o código EX e a mensagem do back-end.
  */
-export async function api<T = unknown>(caminho: string, { metodo = 'GET', corpo, formulario }: Opcoes = {}): Promise<T> {
+export async function api<T = unknown>(
+  caminho: string,
+  { metodo = 'GET', corpo, formulario, tratarSessao = true }: Opcoes = {},
+): Promise<T> {
   const headers: Record<string, string> = {};
   const token = await obterToken();
   if (token) headers.Authorization = `Bearer ${token}`;
@@ -54,9 +62,20 @@ export async function api<T = unknown>(caminho: string, { metodo = 'GET', corpo,
 
   if (!resposta.ok) {
     const erro = isRespostaErro(dados) ? dados : ERRO_INESPERADO;
+    if (tratarSessao && (erro.codigo === 'EX02' || erro.codigo === 'EX03')) await voltarAoLogin(erro.codigo);
     throw new ErroApi(resposta.status, erro);
   }
   return dados as T;
+}
+
+async function voltarAoLogin(motivo: 'EX02' | 'EX03') {
+  await sair();
+  if (typeof window !== 'undefined') {
+    const voltar = encodeURIComponent(window.location.pathname);
+    // Recarga completa de propósito: fora de componente (sem router) e descarta o estado da sessão encerrada.
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+    window.location.assign(`/login?motivo=${motivo}&voltar=${voltar}`);
+  }
 }
 
 function safeJson(texto: string): unknown {

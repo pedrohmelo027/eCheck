@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { rotasAuth } from './auth';
 import { rotasUsuario } from './usuario';
 
 export const rotas = Router();
@@ -8,4 +9,5 @@ rotas.get('/saude', (_req, res) => {
   res.json({ ok: true });
 });
 
+rotas.use('/auth', rotasAuth);
 rotas.use('/usuarios', rotasUsuario);
