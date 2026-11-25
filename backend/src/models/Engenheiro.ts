@@ -1,9 +1,13 @@
 import { AppError } from '../errors/AppError';
 import { UsuarioRepository } from '../repositories/UsuarioRepository';
 import type { ResumoConfirmacao } from '../repositories/ImportacaoRepository';
+import { ItemRepository, type DadosItem } from '../repositories/ItemRepository';
+import { MaquinaRepository } from '../repositories/MaquinaRepository';
 import { ProjetoRepository, type DadosProjeto } from '../repositories/ProjetoRepository';
 import { TipoUsuario } from './enums';
 import { ImportacaoPlanilha, type Previa } from './ImportacaoPlanilha';
+import { ItemSolicitado } from './ItemSolicitado';
+import { Maquina } from './Maquina';
 import { Projeto } from './Projeto';
 import { Usuario } from './Usuario';
 
@@ -52,5 +56,50 @@ export class Engenheiro extends Usuario {
   async excluirProjeto(id: string): Promise<void> {
     await Projeto.buscar(id);
     await ProjetoRepository.excluir(id);
+  }
+
+  /** UC05 FP passos 2–3. RN07: nome único no projeto. RN12: vale também para projeto liberado. */
+  async cadastrarMaquina(projetoId: string, nome: string): Promise<Maquina> {
+    await Projeto.buscar(projetoId);
+    if (await MaquinaRepository.buscarPorNome(projetoId, nome)) throw new AppError('EX08');
+    const criada = await MaquinaRepository.inserir(projetoId, nome);
+    return Maquina.buscar(criada.id);
+  }
+
+  /** UC05 FA1: renomeia, repetindo a conferência do nome (RN07). */
+  async alterarMaquina(id: string, nome: string): Promise<Maquina> {
+    const maquina = await Maquina.buscar(id);
+    const dona = await MaquinaRepository.buscarPorNome(maquina.projetoId, nome);
+    if (dona && dona.id !== id) throw new AppError('EX08');
+    await MaquinaRepository.renomear(id, nome);
+    return Maquina.buscar(id);
+  }
+
+  /** UC05 FA2: exclui a máquina com os itens, só se nenhum tiver recebimento (RN23). */
+  async excluirMaquina(id: string): Promise<void> {
+    await Maquina.buscar(id);
+    await MaquinaRepository.excluir(id);
+  }
+
+  /** UC05 FP passos 4–6: item novo entra PENDENTE. RN08 validado na entrada; RN09: desenho pode repetir. */
+  async cadastrarItem(maquinaId: string, dados: DadosItem): Promise<ItemSolicitado> {
+    await Maquina.buscar(maquinaId);
+    const criado = await ItemRepository.inserir(maquinaId, dados);
+    return ItemSolicitado.buscar(criado.id);
+  }
+
+  /** UC05 FA3: corrige o item. RN12: a quantidade não pode ficar abaixo do já recebido (EX21). */
+  async alterarItem(id: string, dados: DadosItem): Promise<ItemSolicitado> {
+    const item = await ItemSolicitado.buscar(id);
+    const recebido = item.quantidadeRecebida();
+    if (dados.quantidade_solicitada < recebido) throw new AppError('EX21', { r: recebido });
+    await ItemRepository.atualizar(id, dados);
+    return ItemSolicitado.buscar(id);
+  }
+
+  /** UC05 FA4: só exclui item sem recebimento (RN12 → EX17). */
+  async excluirItem(id: string): Promise<void> {
+    await ItemSolicitado.buscar(id);
+    await ItemRepository.excluir(id);
   }
 }
