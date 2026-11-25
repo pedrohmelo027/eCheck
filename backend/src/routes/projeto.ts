@@ -18,5 +18,8 @@ rotasProjeto.post('/', engenheiro, ProjetoController.cadastrar);
 rotasProjeto.put('/:id', engenheiro, ProjetoController.alterar);
 rotasProjeto.delete('/:id', engenheiro, ProjetoController.excluir);
 
+// UC06 — liberar para produção
+rotasProjeto.patch('/:id/liberar', engenheiro, ProjetoController.liberar);
+
 // UC05 — cadastro de máquina no projeto
 rotasProjeto.post('/:id/maquinas', engenheiro, MaquinaController.cadastrar);

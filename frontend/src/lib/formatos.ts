@@ -3,3 +3,8 @@ export function dataBr(iso: string) {
   const [ano, mes, dia] = iso.split('-');
   return `${dia}/${mes}/${ano}`;
 }
+
+/** Data e hora no fuso do navegador, ex.: 25/11/2026 17:42. */
+export function dataHoraBr(iso: string) {
+  return new Date(iso).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+}

@@ -58,6 +58,11 @@ export class Engenheiro extends Usuario {
     await ProjetoRepository.excluir(id);
   }
 
+  /** UC06: libera o projeto inteiro, registrando este engenheiro e o horário. */
+  async liberarProjeto(id: string): Promise<Projeto> {
+    return (await Projeto.buscar(id)).liberar(this.id);
+  }
+
   /** UC05 FP passos 2–3. RN07: nome único no projeto. RN12: vale também para projeto liberado. */
   async cadastrarMaquina(projetoId: string, nome: string): Promise<Maquina> {
     await Projeto.buscar(projetoId);

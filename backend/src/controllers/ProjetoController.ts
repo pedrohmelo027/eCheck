@@ -27,6 +27,11 @@ export const ProjetoController = {
     res.json(await (await engenheiro(req)).alterarProjeto(id, dados));
   },
 
+  /** PATCH /projetos/:id/liberar (UC06) */
+  async liberar(req: Request, res: Response) {
+    res.json(await (await engenheiro(req)).liberarProjeto(idDaRota(req.params.id)));
+  },
+
   async excluir(req: Request, res: Response) {
     await (await engenheiro(req)).excluirProjeto(idDaRota(req.params.id));
     res.status(204).end();
