@@ -109,6 +109,9 @@ export default function ProjetoPage() {
             <div className="flex items-center gap-3">
               <h1 className="text-xl font-semibold">{projeto.codigo}</h1>
               <SeloStatusProjeto status={projeto.status} />
+              <Link href={`/painel/${projeto.id}`} className="text-sm text-zinc-600 underline hover:text-zinc-900">
+                Ver painel
+              </Link>
             </div>
             <p className="text-zinc-700">{projeto.nome}</p>
             {projeto.descricao && <p className="text-sm text-zinc-500">{projeto.descricao}</p>}
