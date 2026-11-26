@@ -139,6 +139,16 @@ export default function ImportarPage() {
             Envie a planilha-modelo do eCheck (.xlsx, aba &quot;Itens&quot;) com as colunas Projeto, Máquina, Desenho, Processo,
             Material, Quantidade e Data da solicitação. Nada é gravado antes da sua confirmação.
           </p>
+          <div className="flex flex-wrap items-center gap-3 rounded border border-dashed border-zinc-300 bg-zinc-50 px-3 py-2 text-sm">
+            <span className="text-zinc-600">Ainda não tem a planilha? Baixe o modelo vazio, preencha uma linha por desenho e envie aqui.</span>
+            <a
+              href="/planilha-echeck.xlsx"
+              download="planilha-echeck.xlsx"
+              className="rounded border border-zinc-300 bg-white px-3 py-1.5 font-medium text-zinc-800 hover:bg-zinc-100"
+            >
+              ⬇ Baixar planilha-modelo
+            </a>
+          </div>
           <input
             ref={entrada}
             type="file"

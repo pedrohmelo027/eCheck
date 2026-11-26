@@ -39,6 +39,7 @@ O [`CONTEXT.md`](../CONTEXT.md) continua sendo a fonte da verdade. Este arquivo 
 - Planilha sem a aba "Itens" ou sem nenhuma linha de dados → EX10.
 - Só o engenheiro que gerou a prévia pode confirmá-la, uma única vez (senão EX09); linha fora da prévia → EX06.
 - Importação recusada com EX11 não fica registrada.
+- A planilha-modelo vazia é `docs/planilha-echeck.xlsx` (o `CONTEXT.md` a chama de `modelo-importacao-echeck.xlsx`). Ela tem só a aba "Itens" com o cabeçalho e é baixada pelo botão da tela Importar planilha; o front a copia de `docs/` para `public/` ao subir.
 
 ### UC04 a UC06 — Projetos, máquinas e liberação
 - Item ou máquina com remessa **estornada** também não pode ser excluído: a remessa continua no histórico.
