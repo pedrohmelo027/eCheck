@@ -176,6 +176,14 @@ export interface PainelGeral extends Totais {
   projetos: BarraProjeto[];
 }
 
+/** UC10 — painel de um projeto. Espelha PainelProjetoDTO do back-end. */
+export interface PainelProjeto extends Totais {
+  projeto: { id: string; codigo: string; nome: string; status: StatusProjeto; liberadoEm: string | null };
+  liberado: boolean;
+  maquinas: (Totais & { id: string; nome: string })[];
+  faltantes: Item[];
+}
+
 /** UC03 — classificação de cada linha da planilha (RN25). */
 export type SituacaoLinha = 'NOVA' | 'JA_EXISTE' | 'POSSIVEL_CORRECAO';
 

@@ -9,3 +9,4 @@ export const rotasPainel = Router();
 rotasPainel.use(autenticar, autorizar());
 
 rotasPainel.get('/', PainelController.geral);
+rotasPainel.get('/projetos/:id', PainelController.porProjeto);

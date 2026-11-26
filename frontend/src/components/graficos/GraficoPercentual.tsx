@@ -67,7 +67,7 @@ export function GraficoPercentual({ titulo, linhas, aoEscolher }: Props) {
             <YAxis
               type="category"
               dataKey="rotulo"
-              width={140}
+              width={190}
               tick={{ fill: COR.texto, fontSize: 13 }}
               axisLine={false}
               tickLine={false}
