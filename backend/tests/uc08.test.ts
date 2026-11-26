@@ -64,6 +64,15 @@ describe('FP — listar e filtrar itens', () => {
     expect(desenhos((await listar(`?projeto=${projetos['PRJ-TESTE-01']}&desenho=TST-001&status=PENDENTE`)).body)).toEqual(['TST-001', 'TST-001', 'TST-001']);
   });
 
+  it('liberados=true: só itens de projetos liberados (tela de recebimentos)', async () => {
+    const res = await listar('?liberados=true');
+    expect(res.body).toHaveLength(5);
+    expect(res.body.every((i: { projeto: string; projetoStatus: string }) => i.projeto === 'PRJ-TESTE-01' && i.projetoStatus === 'LIBERADO')).toBe(true);
+    expect(desenhos((await listar('?liberados=true&desenho=TST-004')).body)).toEqual([]);
+    expect((await listar('?liberados=false')).body).toHaveLength(8);
+    expect((await listar('?liberados=sim')).body.codigo).toBe('EX06');
+  });
+
   it('histórico: quem e quando registrou, atualizou e estornou; estornada marcada e fora do recebido', async () => {
     const item = await idDoItem('PRJ-TESTE-01', 'Esteira Teste A', 'TST-001');
     const enc = await comoUsuario('encarregado');

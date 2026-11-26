@@ -27,6 +27,8 @@ export interface ItemSaldoLinha extends ItemLinha {
 }
 
 export interface FiltroItens {
+  /** Só itens de projetos com este status (ex.: LIBERADO, para a tela de recebimentos). */
+  projetoStatus?: StatusProjeto;
   projetoId?: string;
   maquinaId?: string;
   desenho?: string;
@@ -58,6 +60,7 @@ export const ItemRepository = {
   async listarSaldo(filtro: FiltroItens = {}): Promise<ItemSaldoLinha[]> {
     return buscarTodas<ItemSaldoLinha>((de, ate) => {
       let consulta = supabase().from('vw_itens_saldo').select('*');
+      if (filtro.projetoStatus) consulta = consulta.eq('projeto_status', filtro.projetoStatus);
       if (filtro.projetoId) consulta = consulta.eq('projeto_id', filtro.projetoId);
       if (filtro.maquinaId) consulta = consulta.eq('maquina_id', filtro.maquinaId);
       if (filtro.desenho) consulta = consulta.ilike('desenho', `%${escaparLike(filtro.desenho)}%`);

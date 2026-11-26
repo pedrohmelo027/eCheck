@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { StatusItem } from '../models/enums';
+import { StatusItem, StatusProjeto } from '../models/enums';
 
 const trecho = z
   .string()
@@ -11,10 +11,17 @@ const trecho = z
 /** UC08 passo 3 — filtros da lista de itens. Todos opcionais. */
 export const esquemaFiltroItens = z
   .object({
+    /** `liberados=true`: só projetos LIBERADOS (tela de recebimentos, RN10). */
+    liberados: z.enum(['true', 'false'], { error: 'use true ou false' }).optional(),
     projeto: z.uuid({ error: 'id de projeto inválido' }).optional(),
     maquina: z.uuid({ error: 'id de máquina inválido' }).optional(),
     desenho: trecho,
     processo: trecho,
     status: z.enum(StatusItem, { error: 'use PENDENTE, PARCIAL ou COMPLETO' }).optional(),
   })
-  .transform(({ projeto, maquina, ...resto }) => ({ projetoId: projeto, maquinaId: maquina, ...resto }));
+  .transform(({ liberados, projeto, maquina, ...resto }) => ({
+    projetoStatus: liberados === 'true' ? StatusProjeto.LIBERADO : undefined,
+    projetoId: projeto,
+    maquinaId: maquina,
+    ...resto,
+  }));

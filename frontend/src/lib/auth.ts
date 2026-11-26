@@ -7,9 +7,10 @@ export async function obterToken(): Promise<string | null> {
   return data.session?.access_token ?? null;
 }
 
+/** Encerra só a sessão deste navegador (o padrão do Supabase encerraria as de todos os dispositivos). */
 export async function sair() {
   marcarSenhaPendente(false);
-  await supabaseAuth.signOut();
+  await supabaseAuth.signOut({ scope: 'local' });
 }
 
 /**
