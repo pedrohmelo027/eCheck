@@ -36,6 +36,15 @@ async function novoItem(maquinaId: string, corpo: object = ITEM_TST006) {
   return request(app).post(`/maquinas/${maquinaId}/itens`).set(await eng()).send(corpo);
 }
 
+async function estornar(remessaId: string) {
+  await supabase().from('recebimentos').update({ estornado: true, estornado_por: ids.encarregado, estornado_em: new Date().toISOString() }).eq('id', remessaId);
+}
+
+async function remessasDo(itemId: string) {
+  const { count } = await supabase().from('recebimentos').select('*', { count: 'exact', head: true }).eq('item_id', itemId);
+  return count;
+}
+
 async function idDaMaquina(projeto: string, nome: string) {
   const { data } = await supabase().from('maquinas').select('id').eq('projeto_id', projetos[projeto]).eq('nome', nome).single();
   return data!.id as string;
@@ -191,10 +200,11 @@ describe('FE — fluxos de exceção', () => {
     expect(res.body.codigo).toBe('EX06');
   });
 
-  it('FE3 excluir máquina ou item com recebimento (mesmo estornado) → EX17 e nada é excluído', async () => {
+  it('FE3 excluir máquina ou item com recebimento ativo → EX17 e nada é excluído (nem as remessas estornadas)', async () => {
     const item = await idDoItem('PRJ-TESTE-01', 'Esteira Teste A', 'TST-002');
-    const remessa = await registrarRecebimentoDireto(item, 1, ids.encarregado);
-    await supabase().from('recebimentos').update({ estornado: true, estornado_por: ids.encarregado, estornado_em: new Date().toISOString() }).eq('id', remessa);
+    await registrarRecebimentoDireto(item, 1, ids.encarregado);
+    const estornada = await registrarRecebimentoDireto(item, 1, ids.encarregado);
+    await estornar(estornada);
 
     const maquina = await idDaMaquina('PRJ-TESTE-01', 'Esteira Teste A');
     for (const res of [await request(app).delete(`/maquinas/${maquina}`).set(await eng()), await request(app).delete(`/itens/${item}`).set(await eng())]) {
@@ -202,6 +212,21 @@ describe('FE — fluxos de exceção', () => {
       expect(res.body.codigo).toBe('EX17');
     }
     expect((await request(app).get(`/projetos/${projetos['PRJ-TESTE-01']}`).set(await eng())).body).toMatchObject({ totalMaquinas: 2, totalItens: 5 });
+    expect(await remessasDo(item)).toBe(2);
+  });
+
+  it('remessa só estornada não bloqueia: exclui o item e a máquina, e as estornadas vão junto', async () => {
+    const item = await idDoItem('PRJ-TESTE-01', 'Esteira Teste A', 'TST-002');
+    await estornar(await registrarRecebimentoDireto(item, 2, ids.encarregado));
+    expect((await request(app).delete(`/itens/${item}`).set(await eng())).status).toBe(204);
+    expect(await remessasDo(item)).toBe(0);
+
+    const outro = await idDoItem('PRJ-TESTE-01', 'Alimentador Teste B', 'TST-003');
+    await estornar(await registrarRecebimentoDireto(outro, 3, ids.encarregado));
+    const alimentador = await idDaMaquina('PRJ-TESTE-01', 'Alimentador Teste B');
+    expect((await request(app).delete(`/maquinas/${alimentador}`).set(await eng())).status).toBe(204);
+    expect(await remessasDo(outro)).toBe(0);
+    expect((await request(app).get(`/projetos/${projetos['PRJ-TESTE-01']}`).set(await eng())).body).toMatchObject({ totalMaquinas: 1, totalItens: 1 });
   });
 
   it('FE4 reduzir abaixo do recebido → EX21 com a quantidade recebida', async () => {
