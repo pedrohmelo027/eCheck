@@ -42,3 +42,6 @@ next-env.d.ts
 
 # modelo das variáveis pode ir para o Git
 !.env.example
+
+# cópia gerada de docs/planilha-echeck.xlsx (scripts/copiar-planilha.mjs)
+/public/planilha-echeck.xlsx

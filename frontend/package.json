@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "typecheck": "next typegen && tsc --noEmit"
+    "typecheck": "next typegen && tsc --noEmit",
+    "predev": "node scripts/copiar-planilha.mjs",
+    "prebuild": "node scripts/copiar-planilha.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

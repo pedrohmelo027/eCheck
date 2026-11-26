@@ -167,7 +167,10 @@ A importação lê a aba **"Itens"** de um `.xlsx`, com uma linha por desenho so
 | --- | --- | --- | --- | --- | --- | --- |
 | projeto-x | Esteira ET024 | ET024-MC-003 | Corte e Dobra | SAE 1020 | 16 | 16/11/2026 |
 
-Processo e Material são opcionais. A data pode ser uma data do Excel ou o texto DD/MM/AAAA. A planilha de teste `docs/planilha-teste-echeck.xlsx` serve de exemplo do formato.
+Processo e Material são opcionais. A data pode ser uma data do Excel ou o texto DD/MM/AAAA.
+
+- **Planilha-modelo vazia:** `docs/planilha-echeck.xlsx` (só a aba "Itens" com o cabeçalho). O Engenheiro baixa pelo botão **"Baixar planilha-modelo"** na tela Importar planilha; o front copia o arquivo de `docs/` para `frontend/public/` ao subir (`npm run dev` / `npm run build`).
+- **Exemplo preenchido:** `docs/planilha-teste-echeck.xlsx`, a planilha de teste com 8 linhas fictícias.
 
 ## Documentação
 
@@ -198,7 +201,6 @@ Processo e Material são opcionais. A data pode ser uma data do Excel ou o texto
 - **E-mail:** configurar um SMTP próprio no Supabase. O SMTP padrão tem limite de poucos e-mails por hora e serve só para testes.
 - **Segurança do Auth:** ligar a proteção contra senhas vazadas (Authentication → Password security; depende do plano Pro do Supabase).
 - **Usuários:** indicar "convite pendente" e permitir reenviar o convite a quem ainda não definiu a senha.
-- **Planilha-modelo:** disponibilizar para download um `modelo-importacao-echeck.xlsx` vazio, só com o cabeçalho.
 - **Importações:** tela com o histórico de importações (já registradas na tabela `importacoes`).
 - **Volume:** paginar a tela de Itens no front; hoje ela mostra todos os itens filtrados de uma vez.
 - **Testes:** testes automatizados do front (ponta a ponta) e um projeto Supabase separado só para os testes, para não apagar os dados de quem testa pelo front.
