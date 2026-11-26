@@ -63,6 +63,11 @@ export async function api<T = unknown>(
   if (!resposta.ok) {
     const erro = isRespostaErro(dados) ? dados : ERRO_INESPERADO;
     if (tratarSessao && (erro.codigo === 'EX02' || erro.codigo === 'EX03')) await voltarAoLogin(erro.codigo);
+    // Senha provisória ainda não trocada: a tela de login abre "defina sua nova senha"
+    if (tratarSessao && erro.codigo === 'EX23' && typeof window !== 'undefined') {
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+      window.location.assign('/login');
+    }
     throw new ErroApi(resposta.status, erro);
   }
   return dados as T;

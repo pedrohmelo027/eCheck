@@ -1,4 +1,4 @@
-import type { TipoUsuario, Usuario } from '@/types';
+import type { TipoUsuario, Usuario, UsuarioComSenha } from '@/types';
 import { api } from './api';
 
 export interface FiltroUsuarios {
@@ -16,8 +16,13 @@ export const usuariosService = {
     return api<Usuario[]>(`/usuarios${query ? `?${query}` : ''}`);
   },
 
-  cadastrar(dados: { nome: string; email: string; tipo: TipoUsuario }) {
-    return api<Usuario>('/usuarios', { metodo: 'POST', corpo: dados });
+  /** forma "senha": devolve a senha provisória (uma única vez); "convite": envia o link por e-mail. */
+  cadastrar(dados: { nome: string; email: string; tipo: TipoUsuario; forma: 'senha' | 'convite' }) {
+    return api<UsuarioComSenha>('/usuarios', { metodo: 'POST', corpo: dados });
+  },
+
+  gerarSenhaProvisoria(id: string) {
+    return api<UsuarioComSenha>(`/usuarios/${id}/senha-provisoria`, { metodo: 'PATCH' });
   },
 
   alterar(id: string, dados: { nome: string; email: string }) {

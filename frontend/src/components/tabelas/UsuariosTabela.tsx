@@ -8,10 +8,12 @@ interface Props {
   aoAlterarTipo: (usuario: Usuario, tipo: TipoUsuario) => void;
   aoDesativar: (usuario: Usuario) => void;
   aoReativar: (usuario: Usuario) => void;
+  /** Gera outra senha provisória (a pessoa esqueceu a senha ou não recebeu o convite). */
+  aoGerarSenha: (usuario: Usuario) => void;
 }
 
 /** Lista de usuários com nome, e-mail, tipo e situação (UC01 passo 2) e as ações de cada um. */
-export function UsuariosTabela({ usuarios, aoEditar, aoAlterarTipo, aoDesativar, aoReativar }: Props) {
+export function UsuariosTabela({ usuarios, aoEditar, aoAlterarTipo, aoDesativar, aoReativar, aoGerarSenha }: Props) {
   if (usuarios.length === 0) {
     return <p className="rounded border border-zinc-200 bg-white p-4 text-sm text-zinc-500">Nenhum usuário encontrado com estes filtros.</p>;
   }
@@ -53,10 +55,18 @@ export function UsuariosTabela({ usuarios, aoEditar, aoAlterarTipo, aoDesativar,
                 >
                   {u.ativo ? 'Ativo' : 'Desativado'}
                 </span>
+                {u.trocaPendente && (
+                  <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-800" title="Entrou ou vai entrar com senha provisória e ainda não definiu a própria senha">
+                    Aguardando 1º acesso
+                  </span>
+                )}
               </td>
               <td className="flex gap-3 px-4 py-2">
                 <button onClick={() => aoEditar(u)} className="text-zinc-700 underline hover:text-zinc-900">
                   Alterar
+                </button>
+                <button onClick={() => aoGerarSenha(u)} className="whitespace-nowrap text-blue-700 underline hover:text-blue-900">
+                  Nova senha provisória
                 </button>
                 {u.ativo ? (
                   <button onClick={() => aoDesativar(u)} className="text-red-700 underline hover:text-red-900">

@@ -22,6 +22,8 @@ export const catalogo = {
   EX20: { http: 422, mensagem: 'Você não pode alterar o próprio tipo nem se desativar.' },
   EX21: { http: 422, mensagem: 'A quantidade não pode ser menor que a já recebida ({r}).' },
   EX22: { http: 500, mensagem: 'Algo deu errado. Tente novamente.' },
+  // Acrescentado depois da especificação: entrada com senha provisória (ver docs/DECISOES.md)
+  EX23: { http: 403, mensagem: 'Defina uma nova senha antes de continuar.' },
 } as const;
 
 export type CodigoErro = keyof typeof catalogo;

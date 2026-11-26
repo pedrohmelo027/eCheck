@@ -6,4 +6,9 @@ export const authService = {
   me() {
     return api<UsuarioLogado>('/auth/me', { tratarSessao: false });
   },
+
+  /** Define a própria senha (obrigatório depois de uma senha provisória). Encerra as sessões. */
+  definirSenha(senha: string) {
+    return api<void>('/auth/senha', { metodo: 'POST', corpo: { senha }, tratarSessao: false });
+  },
 };

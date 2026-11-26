@@ -19,6 +19,19 @@ export interface FiltroUsuarios {
 
 const VIOLACAO_UNICIDADE = '23505';
 
+/** Marca na conta do Auth: a pessoa entrou com senha provisória e precisa trocá-la. */
+export const MARCA_TROCAR_SENHA = 'trocar_senha';
+
+async function atualizarConta(id: string, dados: { password: string; app_metadata: Record<string, unknown> }) {
+  const { error } = await supabase().auth.admin.updateUserById(id, dados);
+  if (error) {
+    if (error.code === 'weak_password' || error.status === 422) {
+      throw new AppError('EX06', { campo: 'senha', motivo: 'senha fraca demais' });
+    }
+    throw new AppError('EX22', {}, [error.message]);
+  }
+}
+
 /** Escapa os curingas do LIKE para buscar o texto literal. */
 function escaparLike(texto: string) {
   return texto.replace(/[\\%_]/g, (c) => `\\${c}`);
@@ -97,5 +110,46 @@ export const UsuarioRepository = {
   /** Só para desfazer um cadastro que falhou no meio. */
   async removerConta(id: string): Promise<void> {
     await supabase().auth.admin.deleteUser(id);
+  },
+
+  // ─── Senha provisória (entrada sem e-mail) ───
+
+  /**
+   * Cria a conta já confirmada, com senha provisória e a marca de troca obrigatória
+   * (`app_metadata.trocar_senha`: só a service role altera). Devolve o id da conta.
+   */
+  async criarContaComSenha(email: string, senha: string): Promise<string> {
+    const { data, error } = await supabase().auth.admin.createUser({
+      email,
+      password: senha,
+      email_confirm: true,
+      app_metadata: { [MARCA_TROCAR_SENHA]: true },
+    });
+    if (error) {
+      if (error.status === 422 || /already.*registered|exists/i.test(error.message)) throw new AppError('EX05');
+      throw new AppError('EX22', {}, [error.message]);
+    }
+    return data.user.id;
+  },
+
+  /** Nova senha provisória (ex.: a pessoa esqueceu a senha). Encerra as sessões abertas dela. */
+  async definirSenhaProvisoria(id: string, senha: string): Promise<void> {
+    await atualizarConta(id, { password: senha, app_metadata: { [MARCA_TROCAR_SENHA]: true } });
+  },
+
+  /** Senha escolhida pela própria pessoa: tira a marca de troca obrigatória. */
+  async definirSenhaDefinitiva(id: string, senha: string): Promise<void> {
+    await atualizarConta(id, { password: senha, app_metadata: { [MARCA_TROCAR_SENHA]: false } });
+  },
+
+  /** Ids das contas que ainda estão com senha provisória (para a lista de usuários). */
+  async idsComSenhaProvisoria(): Promise<Set<string>> {
+    const ids = new Set<string>();
+    for (let pagina = 1; ; pagina++) {
+      const { data, error } = await supabase().auth.admin.listUsers({ page: pagina, perPage: 1000 });
+      if (error) throw new AppError('EX22', {}, [error.message]);
+      data.users.filter((c) => c.app_metadata?.[MARCA_TROCAR_SENHA] === true).forEach((c) => ids.add(c.id));
+      if (data.users.length < 1000) return ids;
+    }
   },
 };

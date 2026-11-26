@@ -1,5 +1,5 @@
 import { TipoUsuario } from './enums';
-import type { UsuarioLinha } from '../repositories/UsuarioRepository';
+import { UsuarioRepository, type UsuarioLinha } from '../repositories/UsuarioRepository';
 
 /** Dados do usuário como a API devolve (camelCase). */
 export interface UsuarioDTO {
@@ -30,6 +30,14 @@ export class Usuario {
     this.#tipo = linha.tipo;
     this.#ativo = linha.ativo;
     this.#criadoEm = linha.criado_em;
+  }
+
+  /**
+   * A própria pessoa define a senha (obrigatório depois de uma senha provisória): tira a marca
+   * de troca obrigatória. A troca encerra as sessões abertas dela.
+   */
+  static async definirSenha(id: string, senha: string): Promise<void> {
+    await UsuarioRepository.definirSenhaDefinitiva(id, senha);
   }
 
   get id() {

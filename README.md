@@ -127,6 +127,20 @@ npm run dev                  # http://localhost:3000
 
 Detalhes de cada parte: [`backend/README.md`](./backend/README.md) e [`frontend/README.md`](./frontend/README.md).
 
+## Produção (Rotex Máquinas)
+
+| Parte | Onde |
+| --- | --- |
+| Sistema | https://echeck-rotexmaquinas.netlify.app |
+| API | https://echeck-rotexmaquinas-api.netlify.app (Netlify Functions) |
+| Banco | Supabase `echeck-rotexmaquinas` (São Paulo) |
+
+- **Atualizar a produção:** em `backend/` e depois em `frontend/`, rode `npx netlify-cli deploy --prod --build` (a conta precisa estar logada: `npx netlify-cli login`). As variáveis de ambiente ficam no painel do Netlify; as cópias locais estão em `backend/.env.producao` e `frontend/.env.producao`, fora do Git.
+- **Migrations novas:** aplicar também no `echeck-rotexmaquinas`, na mesma ordem.
+- **Primeiro Administrador:** `DOTENV_CONFIG_PATH=.env.producao npx tsx scripts/criarAdministrador.ts <email> "<nome>" --senha <arquivo>` (em `backend/`); a senha provisória vai para o arquivo e é trocada no primeiro login.
+- **Novos usuários:** o Administrador cadastra pela tela Usuários, com **senha provisória** (padrão) ou convite por e-mail (este exige SMTP configurado no Supabase).
+- **Nunca** rode `npm test` nem `npm run seed:dev` com o `.env.producao`: os dois se recusam a rodar na produção.
+
 ## Usuários fictícios
 
 Criados por `npm run seed:dev` (e pelos testes). Senha de todos: `Senha-Teste-123`. O domínio `.test` é reservado e nunca recebe e-mail.

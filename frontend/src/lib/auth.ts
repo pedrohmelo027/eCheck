@@ -37,6 +37,7 @@ export const MENSAGENS_LOGIN = {
   EX01: 'E-mail ou senha incorretos.',
   EX02: 'Seu acesso está desativado. Procure o administrador.',
   EX03: 'Sua sessão expirou. Entre novamente.',
+  EX23: 'Defina uma nova senha antes de continuar.',
   EX22: 'Algo deu errado. Tente novamente.',
 } as const;
 

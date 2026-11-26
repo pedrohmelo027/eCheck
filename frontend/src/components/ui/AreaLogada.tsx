@@ -36,7 +36,12 @@ export function AreaLogada({ children }: { children: React.ReactNode }) {
     let ativo = true;
     authService
       .me()
-      .then((u) => ativo && setUsuario(u))
+      .then((u) => {
+        if (!ativo) return;
+        // Senha provisória ainda não trocada: a tela de login pede a nova senha
+        if (u.trocarSenha) router.replace('/login');
+        else setUsuario(u);
+      })
       .catch(async (erro) => {
         const motivo = erro instanceof ErroApi && (erro.codigo === 'EX02' || erro.codigo === 'EX03') ? erro.codigo : 'EX03';
         await sair();

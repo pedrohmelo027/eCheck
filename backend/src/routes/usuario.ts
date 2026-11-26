@@ -15,3 +15,4 @@ rotasUsuario.put('/:id', UsuarioController.alterar);
 rotasUsuario.patch('/:id/tipo', UsuarioController.alterarTipo);
 rotasUsuario.patch('/:id/desativar', UsuarioController.desativar);
 rotasUsuario.patch('/:id/reativar', UsuarioController.reativar);
+rotasUsuario.patch('/:id/senha-provisoria', UsuarioController.gerarSenhaProvisoria);

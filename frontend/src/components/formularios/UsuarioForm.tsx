@@ -7,6 +7,8 @@ export interface DadosUsuarioForm {
   nome: string;
   email: string;
   tipo: TipoUsuario;
+  /** Só no cadastro: senha provisória (padrão) ou convite por e-mail. */
+  forma: 'senha' | 'convite';
 }
 
 interface Props {
@@ -30,6 +32,7 @@ export function UsuarioForm({ titulo, inicial, comTipo, textoBotao, aoEnviar, ao
     nome: inicial?.nome ?? '',
     email: inicial?.email ?? '',
     tipo: inicial?.tipo ?? TipoUsuario.USUARIO,
+    forma: inicial?.forma ?? 'senha',
   });
   const [enviando, setEnviando] = useState(false);
 
@@ -73,6 +76,37 @@ export function UsuarioForm({ titulo, inicial, comTipo, textoBotao, aoEnviar, ao
             ))}
           </select>
         </label>
+      )}
+      {comTipo && (
+        <fieldset className="flex flex-col gap-2 text-sm">
+          <legend className="mb-1">Primeiro acesso</legend>
+          <label className="flex items-start gap-2">
+            <input
+              type="radio"
+              name="forma"
+              checked={dados.forma === 'senha'}
+              onChange={() => setDados({ ...dados, forma: 'senha' })}
+              className="mt-0.5"
+            />
+            <span>
+              <span className="font-medium">Senha provisória</span>
+              <span className="block text-zinc-500">O sistema gera uma senha para você repassar; a pessoa troca no primeiro login.</span>
+            </span>
+          </label>
+          <label className="flex items-start gap-2">
+            <input
+              type="radio"
+              name="forma"
+              checked={dados.forma === 'convite'}
+              onChange={() => setDados({ ...dados, forma: 'convite' })}
+              className="mt-0.5"
+            />
+            <span>
+              <span className="font-medium">Convite por e-mail</span>
+              <span className="block text-zinc-500">A pessoa recebe um link para definir a senha (precisa do e-mail configurado).</span>
+            </span>
+          </label>
+        </fieldset>
       )}
       <div className="flex gap-2">
         <button

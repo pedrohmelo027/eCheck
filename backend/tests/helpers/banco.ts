@@ -1,4 +1,5 @@
 import { supabase } from '../../src/config/supabase';
+import { exigirDesenvolvimento } from '../../scripts/ambiente';
 import { USUARIOS_FICTICIOS } from '../../scripts/usuariosFicticios';
 
 const UUID_NULO = '00000000-0000-0000-0000-000000000000';
@@ -15,6 +16,7 @@ async function apagarTudo(tabela: string) {
  * Contas criadas pelos testes (e-mail @echeck.test fora da lista) também são removidas.
  */
 export async function limparBanco() {
+  exigirDesenvolvimento('Limpar o banco (testes)');
   await apagarTudo('recebimentos');
   await apagarTudo('itens_solicitados');
   await apagarTudo('maquinas');

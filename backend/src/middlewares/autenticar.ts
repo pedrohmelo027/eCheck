@@ -2,13 +2,15 @@ import { NextFunction, Request, Response } from 'express';
 import { supabase } from '../config/supabase';
 import { AppError } from '../errors/AppError';
 import { TipoUsuario } from '../models/enums';
-import { UsuarioRepository } from '../repositories/UsuarioRepository';
+import { MARCA_TROCAR_SENHA, UsuarioRepository } from '../repositories/UsuarioRepository';
 
 export interface UsuarioAutenticado {
   id: string;
   nome: string;
   email: string;
   tipo: TipoUsuario;
+  /** Entrou com senha provisória e ainda não trocou: só /auth/me e /auth/senha respondem (EX23). */
+  trocarSenha: boolean;
 }
 
 declare global {
@@ -36,6 +38,13 @@ export async function autenticar(req: Request, _res: Response, next: NextFunctio
   if (!usuario) throw new AppError('EX03');
   if (!usuario.ativo) throw new AppError('EX02');
 
-  req.usuario = { id: usuario.id, nome: usuario.nome, email: usuario.email, tipo: usuario.tipo };
+  req.usuario = {
+    id: usuario.id,
+    nome: usuario.nome,
+    email: usuario.email,
+    tipo: usuario.tipo,
+    // A marca fica em app_metadata, que só a service role altera: a pessoa não consegue apagá-la
+    trocarSenha: data.user.app_metadata?.[MARCA_TROCAR_SENHA] === true,
+  };
   next();
 }
