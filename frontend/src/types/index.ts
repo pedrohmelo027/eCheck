@@ -156,6 +156,26 @@ export const ROTULO_STATUS_PROJETO: Record<StatusProjeto, string> = {
   [StatusProjeto.LIBERADO]: 'Liberado',
 };
 
+/** UC09/UC10 — totais de peças e percentual (RN20). */
+export interface Totais {
+  totalSolicitado: number;
+  totalRecebido: number;
+  totalFaltante: number;
+  percentualRecebido: number;
+}
+
+export interface BarraProjeto extends Totais {
+  id: string;
+  codigo: string;
+  nome: string;
+}
+
+/** UC09 — painel geral (só projetos liberados). Espelha PainelGeralDTO do back-end. */
+export interface PainelGeral extends Totais {
+  totalProjetos: number;
+  projetos: BarraProjeto[];
+}
+
 /** UC03 — classificação de cada linha da planilha (RN25). */
 export type SituacaoLinha = 'NOVA' | 'JA_EXISTE' | 'POSSIVEL_CORRECAO';
 

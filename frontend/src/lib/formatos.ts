@@ -8,3 +8,12 @@ export function dataBr(iso: string) {
 export function dataHoraBr(iso: string) {
   return new Date(iso).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
 }
+
+/** Número em pt-BR (12.345) ou percentual com até uma casa (35,7%). */
+export function numeroBr(valor: number) {
+  return valor.toLocaleString('pt-BR');
+}
+
+export function percentualBr(valor: number) {
+  return `${valor.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%`;
+}
