@@ -42,6 +42,14 @@ export const ROTULO_TIPO: Record<TipoUsuario, string> = {
   [TipoUsuario.USUARIO]: 'Usuário',
 };
 
+/** Setor mostrado abaixo do nome no menu (o tipo continua definindo as permissões). */
+export const ROTULO_SETOR: Record<TipoUsuario, string> = {
+  [TipoUsuario.ADMINISTRADOR]: 'Administrador',
+  [TipoUsuario.ENGENHEIRO]: 'Engenharia',
+  [TipoUsuario.ENCARREGADO]: 'Produção',
+  [TipoUsuario.USUARIO]: 'Usuário',
+};
+
 /** UC04 — projeto com totais. Espelha ProjetoDTO do back-end. */
 export interface Projeto {
   id: string;
