@@ -173,7 +173,7 @@ frontend/
 │   ├── services/        # chamadas à API: auth, usuarios, projetos, maquinas, itens, recebimentos, importacoes, painel
 │   ├── lib/             # supabaseClient.ts (só Auth), auth.ts
 │   ├── types/           # tipos que espelham os Models do back-end
-│   └── middleware.ts    # bloqueia telas sem login ou sem permissão
+│   └── proxy.ts         # bloqueia telas sem login ou sem permissão (o antigo middleware.ts, renomeado no Next 16)
 ├── public/
 ├── .env.local           # NEXT_PUBLIC_API_URL, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY
 ├── package.json
