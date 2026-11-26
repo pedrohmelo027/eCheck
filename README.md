@@ -176,6 +176,7 @@ Processo e Material são opcionais. A data pode ser uma data do Excel ou o texto
 | [`CONTEXT.md`](./CONTEXT.md) | **Fonte da verdade**: casos de uso, diagrama de classes, regras de negócio (RN) e de exceção (EX), arquitetura, endpoints e telas |
 | [`docs/PLANO-DE-DESENVOLVIMENTO.md`](./docs/PLANO-DE-DESENVOLVIMENTO.md) | Ordem de desenvolvimento, planilha de teste e gabarito, testes de cada UC |
 | [`docs/DECISOES.md`](./docs/DECISOES.md) | Decisões tomadas durante o desenvolvimento onde a especificação era omissa |
+| [`docs/USUARIOS-DE-TESTE.md`](./docs/USUARIOS-DE-TESTE.md) | Logins de teste: e-mail, senha, tipo e o que cada um pode testar |
 | `docs/*.png`, `docs/*.jpeg` | Diagramas de arquitetura, casos de uso e classes |
 
 ## Status

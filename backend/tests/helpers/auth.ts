@@ -45,7 +45,9 @@ export async function tokenDe(chave: ChaveUsuario): Promise<string> {
   const guardados = lerTokens();
   const guardado = guardados[chave];
   if (guardado && guardado.sub === usuarios[chave] && guardado.exp > Date.now() / 1000 + MARGEM_SEGUNDOS) {
-    return guardado.token;
+    // A sessão pode ter sido encerrada (ex.: logout em todos os dispositivos): confere sem novo login
+    const { error } = await supabase().auth.getUser(guardado.token);
+    if (!error) return guardado.token;
   }
 
   const email = USUARIOS_FICTICIOS.find((u) => u.chave === chave)!.email;
