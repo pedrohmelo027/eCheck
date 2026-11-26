@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { telasDoTipo } from '@/lib/auth';
-import { ROTULO_TIPO, type UsuarioLogado } from '@/types';
+import { ROTULO_SETOR, type UsuarioLogado } from '@/types';
 
 /** Menu lateral: mostra só as telas do tipo do usuário. */
 export function Menu({ usuario, aoSair }: { usuario: UsuarioLogado; aoSair: () => void }) {
@@ -26,7 +26,7 @@ export function Menu({ usuario, aoSair }: { usuario: UsuarioLogado; aoSair: () =
       })}
       <div className="mt-auto border-t border-zinc-200 pt-4 text-sm">
         <p className="font-medium text-zinc-900">{usuario.nome}</p>
-        <p className="text-zinc-500">{ROTULO_TIPO[usuario.tipo]}</p>
+        <p className="text-zinc-500">{ROTULO_SETOR[usuario.tipo]}</p>
         <button onClick={aoSair} className="mt-2 text-zinc-700 underline hover:text-zinc-900">
           Sair
         </button>

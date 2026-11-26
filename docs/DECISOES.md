@@ -42,7 +42,7 @@ O [`CONTEXT.md`](../CONTEXT.md) continua sendo a fonte da verdade. Este arquivo 
 - A planilha-modelo vazia é `docs/planilha-echeck.xlsx` (o `CONTEXT.md` a chama de `modelo-importacao-echeck.xlsx`). Ela tem só a aba "Itens" com o cabeçalho e é baixada pelo botão da tela Importar planilha; o front a copia de `docs/` para `public/` ao subir.
 
 ### UC04 a UC06 — Projetos, máquinas e liberação
-- Item ou máquina com remessa **estornada** também não pode ser excluído: a remessa continua no histórico.
+- ✔ Só remessa **ativa** bloqueia a exclusão de item, máquina ou projeto (EX17). Remessa estornada não bloqueia: ela é apagada junto (gatilho `itens_apagar_remessas_estornadas`, migration `20261129000000`). Com alguma ativa, nada é excluído, nem as estornadas. *(Antes, estornada também bloqueava; mudado a pedido do responsável.)*
 - `GET /itens?maquina=` foi adiantado no UC05 para a tela do projeto listar os itens de cada máquina (a rota completa é do UC08).
 - A liberação é atômica: com duas liberações simultâneas só uma passa (a outra recebe EX13).
 - O detalhe do projeto traz os nomes de quem criou e de quem liberou.

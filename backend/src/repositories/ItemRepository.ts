@@ -124,7 +124,10 @@ export const ItemRepository = {
     if (error) falhaBanco(error);
   },
 
-  /** Item com recebimento (mesmo estornado, que fica no histórico) não pode ser excluído (RN12 → EX17). */
+  /**
+   * Item com remessa ativa não pode ser excluído (RN12 → EX17). Remessas estornadas não bloqueiam:
+   * o gatilho itens_apagar_remessas_estornadas as apaga junto com o item.
+   */
   async excluir(id: string): Promise<void> {
     const { error } = await supabase().from('itens_solicitados').delete().eq('id', id);
     if (error?.code === VIOLACAO_CHAVE_ESTRANGEIRA) throw new AppError('EX17');

@@ -91,7 +91,7 @@ frontend/   # Next.js: app (telas), components, services (chamadas à API), type
 
 ### 1. Banco (Supabase)
 
-Aplique as migrations de `backend/supabase/migrations/`, **em ordem**, no projeto de desenvolvimento (SQL Editor do Supabase ou `supabase db push` com o Supabase CLI):
+Aplique as 6 migrations de `backend/supabase/migrations/`, **em ordem**, no projeto de desenvolvimento (SQL Editor do Supabase ou `supabase db push` com o Supabase CLI):
 
 | Migration | O que faz |
 | --- | --- |
@@ -100,6 +100,7 @@ Aplique as migrations de `backend/supabase/migrations/`, **em ordem**, no projet
 | `20261127000000_resumos_projeto_maquina.sql` | Views de totais por máquina e por projeto (UC04) |
 | `20261127000100_horario_por_linha.sql` | `clock_timestamp()` nas datas de criação (ordem de cadastro da RN14) |
 | `20261128000000_registrar_recebimentos.sql` | Função da baixa pelo projeto numa transação (UC07) |
+| `20261129000000_exclusao_com_estorno.sql` | Remessa estornada não bloqueia a exclusão: é apagada junto com o item |
 
 Em **Authentication → URL Configuration**, coloque o endereço do front (ex.: `http://localhost:3000`) em *Site URL* e `http://localhost:3000/**` em *Redirect URLs*: é para lá que voltam os links de convite e de redefinição de senha.
 
@@ -142,7 +143,7 @@ Criados por `npm run seed:dev` (e pelos testes). Senha de todos: `Senha-Teste-12
 
 ```bash
 cd backend
-npm test        # 135 testes (Jest + Supertest), um arquivo por caso de uso: tests/uc01.test.ts … uc10.test.ts
+npm test        # 139 testes (Jest + Supertest), um arquivo por caso de uso: tests/uc01.test.ts … uc10.test.ts
 ```
 
 - Os testes rodam contra o Supabase de **desenvolvimento** e **limpam o banco** (projetos, máquinas, itens, recebimentos e importações). Os 5 usuários fictícios são mantidos.

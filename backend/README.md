@@ -61,7 +61,7 @@ Os endpoints são os da seção 6.1 do `CONTEXT.md`. Rota pública só `GET /sau
 
 ## Testes
 
-- `npm test` roda os 135 testes, **um arquivo por vez** (`maxWorkers: 1`), porque todos usam o mesmo banco.
+- `npm test` roda os 139 testes, **um arquivo por vez** (`maxWorkers: 1`), porque todos usam o mesmo banco.
 - Cada teste parte de um banco limpo; os 5 usuários fictícios são mantidos. **Não rode os testes num banco com dados que você quer guardar.**
 - O login nos testes é real (Supabase Auth). Os JWTs ficam num arquivo temporário (`/tmp/echeck-tokens-*.json`) e são reaproveitados por até 1 hora, para não estourar o limite de logins por IP do Supabase.
 - O convite por e-mail é simulado (`mockarConvite`): nenhum e-mail é enviado.

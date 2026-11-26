@@ -153,6 +153,29 @@ describe('FE — fluxos de exceção', () => {
     expect(await contar('itens_solicitados')).toBe(8);
   });
 
+  it('remessas só estornadas não bloqueiam: exclui o projeto com máquinas, itens e as remessas estornadas', async () => {
+    const item = await idDoItem('PRJ-TESTE-01', 'Esteira Teste A', 'TST-002');
+    const remessa = await registrarRecebimentoDireto(item, 3, ids.encarregado);
+    await supabase().from('recebimentos').update({ estornado: true, estornado_por: ids.encarregado, estornado_em: new Date().toISOString() }).eq('id', remessa);
+
+    const res = await request(app).delete(`/projetos/${projetos['PRJ-TESTE-01']}`).set(await comoUsuario('engenheiro'));
+    expect(res.status).toBe(204);
+    expect(await contar('projetos')).toBe(1);
+    expect(await contar('itens_solicitados')).toBe(3);
+    expect(await contar('recebimentos')).toBe(0);
+  });
+
+  it('remessa ativa em um item e estornada em outro → EX17 e a estornada continua gravada', async () => {
+    await registrarRecebimentoDireto(await idDoItem('PRJ-TESTE-01', 'Esteira Teste A', 'TST-002'), 1, ids.encarregado);
+    const estornada = await registrarRecebimentoDireto(await idDoItem('PRJ-TESTE-01', 'Alimentador Teste B', 'TST-003'), 2, ids.encarregado);
+    await supabase().from('recebimentos').update({ estornado: true, estornado_por: ids.encarregado, estornado_em: new Date().toISOString() }).eq('id', estornada);
+
+    const res = await request(app).delete(`/projetos/${projetos['PRJ-TESTE-01']}`).set(await comoUsuario('engenheiro'));
+    expect(res.body.codigo).toBe('EX17');
+    expect(await contar('itens_solicitados')).toBe(8);
+    expect(await contar('recebimentos')).toBe(2);
+  });
+
   it('FE4 id inexistente → EX09 (ver, alterar e excluir)', async () => {
     const engenheiro = await comoUsuario('engenheiro');
     const respostas = [
