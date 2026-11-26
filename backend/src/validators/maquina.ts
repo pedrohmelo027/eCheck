@@ -30,7 +30,3 @@ export const esquemaItem = z
     quantidade_solicitada: quantidadeSolicitada,
     data_solicitacao: dataSolicitacao,
   }));
-
-export const esquemaFiltroItens = z.object({
-  maquina: z.uuid({ error: 'id de máquina inválido' }).optional(),
-});

@@ -110,6 +110,18 @@ export interface Recebimento {
   estornadoEm: string | null;
 }
 
+/** UC08 — remessa no histórico, com os nomes de quem registrou, atualizou e estornou. */
+export interface RecebimentoHistorico extends Recebimento {
+  registradoPorNome: string | null;
+  atualizadoPorNome: string | null;
+  estornadoPorNome: string | null;
+}
+
+export interface HistoricoItem {
+  item: Item;
+  recebimentos: RecebimentoHistorico[];
+}
+
 /** Aviso que não bloqueia: quantidade acima do saldo (EX16). */
 export interface Aviso {
   codigo: 'EX16';

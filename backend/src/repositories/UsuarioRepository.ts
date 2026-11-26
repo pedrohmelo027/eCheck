@@ -52,6 +52,15 @@ export const UsuarioRepository = {
     return data as UsuarioLinha[];
   },
 
+  /** Nome de cada usuário pelo id (para históricos). Ids repetidos são consultados uma vez. */
+  async buscarNomes(ids: string[]): Promise<Map<string, string>> {
+    const unicos = [...new Set(ids)];
+    if (unicos.length === 0) return new Map();
+    const { data, error } = await supabase().from('usuarios').select('id, nome').in('id', unicos);
+    if (error) falha(error);
+    return new Map((data ?? []).map((u) => [u.id as string, u.nome as string]));
+  },
+
   async inserir(linha: Omit<UsuarioLinha, 'criado_em'>): Promise<UsuarioLinha> {
     const { data, error } = await supabase().from('usuarios').insert(linha).select('*').single();
     if (error) falha(error);

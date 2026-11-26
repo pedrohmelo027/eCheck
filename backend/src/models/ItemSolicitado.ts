@@ -1,9 +1,17 @@
 import { AppError } from '../errors/AppError';
-import { ItemRepository, type ItemSaldoLinha } from '../repositories/ItemRepository';
+import { ItemRepository, type FiltroItens, type ItemSaldoLinha } from '../repositories/ItemRepository';
 import { RecebimentoRepository } from '../repositories/RecebimentoRepository';
+import { UsuarioRepository } from '../repositories/UsuarioRepository';
 import { percentual } from './calculos';
 import { StatusItem, StatusProjeto } from './enums';
-import { avisoExcedente, Recebimento, type AvisoDTO } from './Recebimento';
+import { avisoExcedente, Recebimento, type AvisoDTO, type RecebimentoDTO } from './Recebimento';
+
+/** Remessa no histórico do item, com os nomes de quem mexeu nela (RN18). */
+export interface RecebimentoHistoricoDTO extends RecebimentoDTO {
+  registradoPorNome: string | null;
+  atualizadoPorNome: string | null;
+  estornadoPorNome: string | null;
+}
 
 export interface ItemDTO {
   id: string;
@@ -41,8 +49,26 @@ export class ItemSolicitado {
     return new ItemSolicitado(linha);
   }
 
-  static async listar(filtro: { maquinaId?: string } = {}): Promise<ItemSolicitado[]> {
+  /** UC08 — lista e filtra itens (todos os projetos, liberados ou não). */
+  static async listar(filtro: FiltroItens = {}): Promise<ItemSolicitado[]> {
     return (await ItemRepository.listarSaldo(filtro)).map((l) => new ItemSolicitado(l));
+  }
+
+  /**
+   * UC08 passo 5 — histórico de remessas, da mais antiga para a mais nova, com o nome de quem
+   * registrou, atualizou e estornou (RN18). Estornadas aparecem marcadas e não contam (RN17).
+   */
+  async listarRecebimentos(): Promise<RecebimentoHistoricoDTO[]> {
+    const remessas = (await RecebimentoRepository.listarDoItem(this.id)).map((l) => new Recebimento(l).toJSON());
+    const ids = remessas.flatMap((r) => [r.registradoPor, r.atualizadoPor, r.estornadoPor]).filter((id): id is string => Boolean(id));
+    const nomes = await UsuarioRepository.buscarNomes(ids);
+    const nome = (id: string | null) => (id ? (nomes.get(id) ?? null) : null);
+    return remessas.map((r) => ({
+      ...r,
+      registradoPorNome: nome(r.registradoPor),
+      atualizadoPorNome: nome(r.atualizadoPor),
+      estornadoPorNome: nome(r.estornadoPor),
+    }));
   }
 
   /** UC07 passo 2: onde o desenho aparece em projetos liberados; nenhum → EX19. */

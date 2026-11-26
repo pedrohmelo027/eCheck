@@ -26,6 +26,14 @@ export interface ItemSaldoLinha extends ItemLinha {
   status: StatusItem;
 }
 
+export interface FiltroItens {
+  projetoId?: string;
+  maquinaId?: string;
+  desenho?: string;
+  processo?: string;
+  status?: StatusItem;
+}
+
 export type DadosItem = Pick<ItemLinha, 'desenho' | 'processo' | 'material' | 'quantidade_solicitada' | 'data_solicitacao'>;
 
 const VIOLACAO_CHAVE_ESTRANGEIRA = '23503';
@@ -43,11 +51,19 @@ export const ItemRepository = {
   },
 
   /** Itens com saldo, na ordem de solicitação (data e depois ordem de cadastro). */
-  async listarSaldo(filtro: { maquinaId?: string } = {}): Promise<ItemSaldoLinha[]> {
+  /**
+   * Itens com saldo (UC05, UC08). Projeto e máquina pelo id; desenho e processo por trecho, sem
+   * diferenciar maiúsculas; status calculado (RN19). Ordem: projeto, data da solicitação, cadastro.
+   */
+  async listarSaldo(filtro: FiltroItens = {}): Promise<ItemSaldoLinha[]> {
     return buscarTodas<ItemSaldoLinha>((de, ate) => {
       let consulta = supabase().from('vw_itens_saldo').select('*');
+      if (filtro.projetoId) consulta = consulta.eq('projeto_id', filtro.projetoId);
       if (filtro.maquinaId) consulta = consulta.eq('maquina_id', filtro.maquinaId);
-      return consulta.order('data_solicitacao').order('criado_em').range(de, ate);
+      if (filtro.desenho) consulta = consulta.ilike('desenho', `%${escaparLike(filtro.desenho)}%`);
+      if (filtro.processo) consulta = consulta.ilike('processo', `%${escaparLike(filtro.processo)}%`);
+      if (filtro.status) consulta = consulta.eq('status', filtro.status);
+      return consulta.order('projeto_codigo').order('data_solicitacao').order('criado_em').range(de, ate);
     });
   },
 
