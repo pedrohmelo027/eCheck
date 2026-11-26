@@ -1,0 +1,4 @@
+# Front do eCheck no Netlify (site echeck-rotexmaquinas). O Netlify detecta o Next.js sozinho.
+[build]
+  command = "npm run build"
+  publish = ".next"

@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { env } from '../src/config/env';
 import { supabase } from '../src/config/supabase';
 import { TipoUsuario } from '../src/models/enums';
+import { exigirDesenvolvimento } from './ambiente';
 
 /** Usuários fictícios (PLANO-DE-DESENVOLVIMENTO.md, seção 3). O domínio .test nunca recebe e-mail. */
 export const USUARIOS_FICTICIOS = [
@@ -26,6 +27,7 @@ const MARCA_SENHA = 'echeck_senha_ficticia';
  * Devolve o id de cada um.
  */
 export async function garantirUsuariosFicticios(): Promise<Record<ChaveUsuario, string>> {
+  exigirDesenvolvimento('Criar usuários fictícios');
   const admin = supabase().auth.admin;
   const { data: lista, error: erroLista } = await admin.listUsers({ perPage: 1000 });
   if (erroLista) throw erroLista;

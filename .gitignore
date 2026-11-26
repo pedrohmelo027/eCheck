@@ -3,3 +3,6 @@
 
 # Cada pasta (backend/, frontend/) tem o próprio .gitignore
 # com node_modules, builds e arquivos .env.
+
+# Local Netlify folder
+.netlify
