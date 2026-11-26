@@ -52,6 +52,13 @@ export const ProjetoRepository = {
     );
   },
 
+  /** Projetos LIBERADOS com totais (painel geral, RN20). */
+  async listarResumoLiberados(): Promise<ProjetoResumoLinha[]> {
+    return buscarTodas<ProjetoResumoLinha>((de, ate) =>
+      supabase().from('vw_resumo_projetos').select('*').eq('status', StatusProjeto.LIBERADO).order('codigo').range(de, ate),
+    );
+  },
+
   async buscarResumo(id: string): Promise<ProjetoResumoLinha | null> {
     const { data, error } = await supabase().from('vw_resumo_projetos').select('*').eq('id', id).maybeSingle();
     if (error) falha(error);
