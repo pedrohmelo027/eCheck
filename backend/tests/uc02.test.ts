@@ -17,7 +17,7 @@ describe('FP — GET /auth/me devolve o usuário e o tipo certo', () => {
   it.each(USUARIOS_FICTICIOS.filter((u) => u.ativo).map((u) => [u.tipo, u] as const))('%s', async (_tipo, u) => {
     const res = await request(app).get('/auth/me').set(await comoUsuario(u.chave));
     expect(res.status).toBe(200);
-    expect(res.body).toEqual({ id: ids[u.chave], nome: u.nome, email: u.email, tipo: u.tipo });
+    expect(res.body).toEqual({ id: ids[u.chave], nome: u.nome, email: u.email, tipo: u.tipo, trocarSenha: false });
   });
 });
 

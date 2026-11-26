@@ -17,10 +17,17 @@ export const UsuarioController = {
     res.json(usuarios);
   },
 
+  /** A senha provisória (forma "senha") só aparece nesta resposta; não é guardada em lugar nenhum. */
   async cadastrar(req: Request, res: Response) {
-    const { nome, email, tipo } = esquemaCadastrarUsuario.parse(req.body);
-    const usuario = await (await administrador(req)).cadastrarUsuario(nome, email, tipo);
-    res.status(201).json(usuario);
+    const { nome, email, tipo, forma } = esquemaCadastrarUsuario.parse(req.body);
+    const { usuario, senhaProvisoria } = await (await administrador(req)).cadastrarUsuario(nome, email, tipo, forma);
+    res.status(201).json({ ...usuario.toJSON(), senhaProvisoria });
+  },
+
+  /** PATCH /usuarios/:id/senha-provisoria — gera outra senha provisória (mostrada uma única vez). */
+  async gerarSenhaProvisoria(req: Request, res: Response) {
+    const { usuario, senhaProvisoria } = await (await administrador(req)).gerarNovaSenhaProvisoria(idDaRota(req.params.id));
+    res.json({ ...usuario.toJSON(), senhaProvisoria });
   },
 
   async alterar(req: Request, res: Response) {

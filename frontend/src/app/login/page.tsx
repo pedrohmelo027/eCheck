@@ -25,11 +25,6 @@ function limparUrl() {
   window.history.replaceState(null, '', '/login');
 }
 
-function mensagemSenha(codigo: string | undefined, mensagem: string) {
-  if (codigo === 'weak_password') return 'A senha é fraca demais. Use pelo menos 6 caracteres.';
-  if (codigo === 'same_password') return 'A nova senha precisa ser diferente da anterior.';
-  return mensagem || MENSAGENS_LOGIN.EX22;
-}
 
 /** UC02 — Fazer login. */
 export default function LoginPage() {
@@ -48,7 +43,15 @@ export default function LoginPage() {
   const entrarNoSistema = useCallback(
     async (para: string) => {
       try {
-        await authService.me();
+        const usuario = await authService.me();
+        // Entrou com senha provisória: precisa definir a própria senha antes de usar o sistema
+        if (usuario.trocarSenha) {
+          setTituloSenha('Primeiro acesso: defina sua nova senha');
+          setSenha('');
+          setConfirmacao('');
+          setModo('definir');
+          return;
+        }
         router.replace(para);
       } catch (e) {
         await sair();
@@ -165,12 +168,26 @@ export default function LoginPage() {
     }
     setEnviando(true);
     try {
-      const { error } = await supabaseAuth.updateUser({ password: senha });
-      if (error) {
-        setErro(mensagemSenha(error.code, error.message));
+      // A API define a senha (mesma regra para convite, redefinição e senha provisória) e tira a
+      // marca de troca obrigatória. A troca encerra as sessões: entra de novo com a senha nova.
+      const { data } = await supabaseAuth.getUser();
+      const emailDaConta = data.user?.email;
+      try {
+        await authService.definirSenha(senha);
+      } catch (e) {
+        setErro(e instanceof ErroApi ? e.message : MENSAGENS_LOGIN.EX22);
         return;
       }
       marcarSenhaPendente(false);
+      const { error } = emailDaConta
+        ? await supabaseAuth.signInWithPassword({ email: emailDaConta, password: senha })
+        : { error: new Error('sem e-mail') };
+      if (error) {
+        await sair();
+        setAviso('Senha definida. Entre com o seu e-mail e a nova senha.');
+        setModo('entrar');
+        return;
+      }
       await entrarNoSistema(destino);
     } finally {
       setEnviando(false);
@@ -243,6 +260,7 @@ export default function LoginPage() {
         {modo === 'definir' && (
           <form onSubmit={definirSenha} className="flex flex-col gap-3">
             <p className="font-medium">{tituloSenha}</p>
+            <p className="text-sm text-zinc-500">Pelo menos 8 caracteres, com letra e número.</p>
             <label className="flex flex-col gap-1 text-sm">
               Nova senha
               <input

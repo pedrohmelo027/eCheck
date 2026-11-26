@@ -12,6 +12,7 @@ const getUser = jest.fn();
 const buscarPorId = jest.fn();
 jest.mock('../src/config/supabase', () => ({ supabase: () => ({ auth: { getUser } }) }));
 jest.mock('../src/repositories/UsuarioRepository', () => ({
+  MARCA_TROCAR_SENHA: 'trocar_senha',
   UsuarioRepository: { buscarPorId: (...args: unknown[]) => buscarPorId(...args) },
 }));
 
@@ -61,8 +62,8 @@ describe('GET /saude e app base', () => {
 });
 
 describe('catálogo de erros', () => {
-  it('tem EX01 a EX22', () => {
-    const esperado = Array.from({ length: 22 }, (_, i) => `EX${String(i + 1).padStart(2, '0')}`);
+  it('tem EX01 a EX23 (EX23 acrescentado para a senha provisória)', () => {
+    const esperado = Array.from({ length: 23 }, (_, i) => `EX${String(i + 1).padStart(2, '0')}`);
     expect(Object.keys(catalogo)).toEqual(esperado);
   });
 
@@ -115,11 +116,11 @@ describe('autenticar', () => {
   });
 
   it('usuário ativo → carrega id, nome, e-mail e o tipo do banco', async () => {
-    getUser.mockResolvedValue({ data: { user: { id: 'u1' } }, error: null });
+    getUser.mockResolvedValue({ data: { user: { id: 'u1', app_metadata: {} } }, error: null });
     buscarPorId.mockResolvedValue(ativo);
     const res = await request(appProtegido()).get('/protegida').set('Authorization', 'Bearer t');
     expect(res.status).toBe(200);
-    expect(res.body).toEqual({ id: 'u1', nome: 'Engenheiro Teste', email: 'engenheiro@echeck.test', tipo: 'ENGENHEIRO' });
+    expect(res.body).toEqual({ id: 'u1', nome: 'Engenheiro Teste', email: 'engenheiro@echeck.test', tipo: 'ENGENHEIRO', trocarSenha: false });
     expect(buscarPorId).toHaveBeenCalledWith('u1');
   });
 });
@@ -138,6 +139,14 @@ describe('autorizar', () => {
     const res = await request(appProtegido(TipoUsuario.ENGENHEIRO)).get('/protegida').set('Authorization', 'Bearer t');
     expect(res.status).toBe(403);
     expect(res.body.codigo).toBe('EX04');
+  });
+
+  it('senha provisória ainda não trocada → EX23, em qualquer tipo', async () => {
+    getUser.mockResolvedValue({ data: { user: { id: 'u1', app_metadata: { trocar_senha: true } } }, error: null });
+    buscarPorId.mockResolvedValue(ativo);
+    const res = await request(appProtegido(TipoUsuario.ENGENHEIRO)).get('/protegida').set('Authorization', 'Bearer t');
+    expect(res.status).toBe(403);
+    expect(res.body).toEqual({ codigo: 'EX23', mensagem: 'Defina uma nova senha antes de continuar.' });
   });
 
   it('sem tipos = qualquer usuário autenticado', async () => {

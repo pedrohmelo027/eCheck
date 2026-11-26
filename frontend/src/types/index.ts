@@ -33,6 +33,13 @@ export interface Usuario {
   tipo: TipoUsuario;
   ativo: boolean;
   criadoEm: string;
+  /** Ainda está com senha provisória: não fez o primeiro login ou não trocou a senha. */
+  trocaPendente?: boolean;
+}
+
+/** Resposta do cadastro e da nova senha provisória: a senha só aparece aqui, uma única vez. */
+export interface UsuarioComSenha extends Usuario {
+  senhaProvisoria: string | null;
 }
 
 export const ROTULO_TIPO: Record<TipoUsuario, string> = {
@@ -239,4 +246,6 @@ export interface UsuarioLogado {
   nome: string;
   email: string;
   tipo: TipoUsuario;
+  /** Entrou com senha provisória e ainda não definiu a própria senha. */
+  trocarSenha: boolean;
 }

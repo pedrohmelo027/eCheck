@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { UsuarioForm, type DadosUsuarioForm } from '@/components/formularios/UsuarioForm';
 import { UsuariosTabela } from '@/components/tabelas/UsuariosTabela';
 import { Alerta } from '@/components/ui/Alerta';
+import { SenhaProvisoria } from '@/components/ui/SenhaProvisoria';
 import { ErroApi } from '@/services/api';
 import { usuariosService, type FiltroUsuarios } from '@/services/usuarios';
 import { ROTULO_TIPO, TipoUsuario, type Usuario } from '@/types';
@@ -22,6 +23,8 @@ export default function UsuariosPage() {
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
   const [sucesso, setSucesso] = useState<string | null>(null);
+  /** Senha provisória recém-gerada: aparece uma única vez. */
+  const [credencial, setCredencial] = useState<{ nome: string; email: string; senha: string } | null>(null);
 
   const carregar = useCallback(async (f: FiltroUsuarios) => {
     setCarregando(true);
@@ -57,7 +60,11 @@ export default function UsuariosPage() {
 
   async function salvarFormulario(dados: DadosUsuarioForm) {
     if (formulario?.modo === 'novo') {
-      await executar(() => usuariosService.cadastrar(dados), `Convite enviado para ${dados.email}.`, true);
+      const mensagem = dados.forma === 'senha' ? `${dados.nome} foi cadastrado.` : `Convite enviado para ${dados.email}.`;
+      await executar(async () => {
+        const criado = await usuariosService.cadastrar(dados);
+        if (criado.senhaProvisoria) setCredencial({ nome: criado.nome, email: criado.email, senha: criado.senhaProvisoria });
+      }, mensagem, true);
     } else if (formulario?.modo === 'editar') {
       const { usuario } = formulario;
       await executar(() => usuariosService.alterar(usuario.id, { nome: dados.nome, email: dados.email }), 'Dados alterados.', true);
@@ -73,6 +80,14 @@ export default function UsuariosPage() {
   function desativar(usuario: Usuario) {
     if (!confirm(`Desativar ${usuario.nome}? O acesso será bloqueado e o histórico mantido.`)) return;
     executar(() => usuariosService.desativar(usuario.id), `${usuario.nome} foi desativado.`);
+  }
+
+  function gerarSenha(usuario: Usuario) {
+    if (!confirm(`Gerar uma nova senha provisória para ${usuario.nome}? A senha atual dele deixa de valer e ele terá de trocá-la no próximo login.`)) return;
+    executar(async () => {
+      const resposta = await usuariosService.gerarSenhaProvisoria(usuario.id);
+      if (resposta.senhaProvisoria) setCredencial({ nome: resposta.nome, email: resposta.email, senha: resposta.senhaProvisoria });
+    }, `Nova senha provisória gerada para ${usuario.nome}.`);
   }
 
   function reativar(usuario: Usuario) {
@@ -100,6 +115,7 @@ export default function UsuariosPage() {
 
       {erro && <Alerta tipo="erro">{erro}</Alerta>}
       {sucesso && <Alerta tipo="sucesso">{sucesso}</Alerta>}
+      {credencial && <SenhaProvisoria {...credencial} aoFechar={() => setCredencial(null)} />}
 
       {formulario && (
         <div className="max-w-md">
@@ -108,7 +124,7 @@ export default function UsuariosPage() {
             titulo={formulario.modo === 'novo' ? 'Novo usuário' : `Alterar ${formulario.usuario.nome}`}
             inicial={formulario.modo === 'editar' ? formulario.usuario : undefined}
             comTipo={formulario.modo === 'novo'}
-            textoBotao={formulario.modo === 'novo' ? 'Cadastrar e enviar convite' : 'Salvar'}
+            textoBotao={formulario.modo === 'novo' ? 'Cadastrar' : 'Salvar'}
             aoEnviar={salvarFormulario}
             aoCancelar={() => setFormulario(null)}
           />
@@ -150,6 +166,7 @@ export default function UsuariosPage() {
           aoAlterarTipo={alterarTipo}
           aoDesativar={desativar}
           aoReativar={reativar}
+          aoGerarSenha={gerarSenha}
         />
       )}
     </main>

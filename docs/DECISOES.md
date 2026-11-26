@@ -27,7 +27,11 @@ O [`CONTEXT.md`](../CONTEXT.md) continua sendo a fonte da verdade. Este arquivo 
 - Se gravar o usuário falhar depois do convite, a conta criada no Auth é apagada.
 - Id que nem é UUID é tratado como inexistente (EX09).
 
+- ✔ **Senha provisória (muda a RN01).** Além do convite por e-mail, o Administrador pode cadastrar com **senha provisória**: o sistema gera uma senha forte e única (ex.: `eCheck-7Kp4-Qm2z`), mostrada uma única vez para ele repassar. A conta fica marcada (`app_metadata.trocar_senha`, que só a API altera) e a pessoa é obrigada a definir a própria senha no primeiro login. É a forma padrão no cadastro, porque não depende de e-mail (SMTP). O Administrador também pode gerar uma **nova senha provisória** para quem esquecer a senha (`PATCH /usuarios/:id/senha-provisoria`).
+
 ### UC02 — Fazer login
+- ✔ Com senha provisória ainda não trocada, toda a API responde **EX23** "Defina uma nova senha antes de continuar." (403), menos `GET /auth/me` e `POST /auth/senha`. O EX23 foi acrescentado ao catálogo. A tela de login abre "Primeiro acesso: defina sua nova senha".
+- `POST /auth/senha` define a senha (8 a 72 caracteres, com letra e número) para todos os casos: senha provisória, link de convite e link de redefinição. A troca encerra as sessões, e o front entra de novo sozinho com a senha nova.
 - O link de convite chega com o token no `#hash`, e o cliente do navegador do `@supabase/ssr` só aceita PKCE; por isso a tela de login trata a URL manualmente.
 - Quem chega por link de convite ou de redefinição fica na tela "defina sua senha" até salvar (senão entraria sem senha).
 - Senha mínima: a do Supabase Auth (6 caracteres).
@@ -60,6 +64,14 @@ O [`CONTEXT.md`](../CONTEXT.md) continua sendo a fonte da verdade. Este arquivo 
 - `/itens?item=<id>` abre direto o histórico (usado pelos faltantes do painel do projeto).
 - Painel do projeto: "faltantes" são os itens pendentes e parciais; projeto em cadastro mostra aviso e 0%.
 - Gráficos: barras horizontais de 0 a 100%, um tom (série única, sem legenda), valor escrito na barra e tabela com os mesmos números.
+
+## Produção
+
+- ✔ Supabase **`echeck-rotexmaquinas`** (gratuito, São Paulo), exclusivo da Rotex; para caber no limite de 2 projetos gratuitos, o `econference-dev` foi pausado.
+- ✔ Front e API no **Netlify gratuito** (o plano gratuito da Vercel não permite uso comercial): `echeck-rotexmaquinas` e `echeck-rotexmaquinas-api`. A API roda como uma função do Netlify (`backend/netlify/functions/api.ts`, com `serverless-http`).
+- Os sites foram criados com o acesso restrito a membros da equipe do Netlify (padrão da conta); essa proteção foi desligada só nesses dois sites.
+- O primeiro Administrador foi criado com `scripts/criarAdministrador.ts --senha` (não há autocadastro).
+- Testes e o seed de usuários fictícios se recusam a rodar no Supabase de produção (`scripts/ambiente.ts`).
 
 ## Ferramentas de teste
 

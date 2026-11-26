@@ -2,7 +2,10 @@ import { env } from '../config/env';
 import { AppError } from '../errors/AppError';
 import { FiltroUsuarios, UsuarioRepository } from '../repositories/UsuarioRepository';
 import { TipoUsuario } from './enums';
-import { Usuario } from './Usuario';
+import { gerarSenhaProvisoria } from './senha';
+import { Usuario, type UsuarioDTO } from './Usuario';
+
+export type FormaPrimeiroAcesso = 'convite' | 'senha';
 
 /** Administrador: mantém os usuários (UC01). Herda do Usuário login, consultas e painéis. */
 export class Administrador extends Usuario {
@@ -13,25 +16,47 @@ export class Administrador extends Usuario {
     return new Administrador(linha);
   }
 
-  async listarUsuarios(filtro: FiltroUsuarios = {}): Promise<Usuario[]> {
-    const linhas = await UsuarioRepository.listar(filtro);
-    return linhas.map((linha) => new Usuario(linha));
+  /** Lista com a indicação de quem ainda está com senha provisória. */
+  async listarUsuarios(filtro: FiltroUsuarios = {}): Promise<(UsuarioDTO & { trocaPendente: boolean })[]> {
+    const [linhas, provisorias] = await Promise.all([UsuarioRepository.listar(filtro), UsuarioRepository.idsComSenhaProvisoria()]);
+    return linhas.map((linha) => ({ ...new Usuario(linha).toJSON(), trocaPendente: provisorias.has(linha.id) }));
   }
 
-  /** RN01: cria a conta pelo convite por e-mail. RN02: e-mail único. Novo usuário entra ativo. */
-  async cadastrarUsuario(nome: string, email: string, tipo: TipoUsuario): Promise<Usuario> {
+  /**
+   * RN02: e-mail único. Novo usuário entra ativo. Duas formas de primeiro acesso:
+   * - "convite" (RN01): link por e-mail para a pessoa definir a senha (exige SMTP);
+   * - "senha": senha provisória gerada aqui, devolvida uma única vez para o Administrador
+   *   repassar; a pessoa é obrigada a trocá-la no primeiro login (EX23 até trocar).
+   */
+  async cadastrarUsuario(
+    nome: string,
+    email: string,
+    tipo: TipoUsuario,
+    forma: FormaPrimeiroAcesso = 'convite',
+  ): Promise<{ usuario: Usuario; senhaProvisoria: string | null }> {
     const emailNormalizado = email.toLowerCase();
     if (await UsuarioRepository.buscarPorEmail(emailNormalizado)) throw new AppError('EX05');
 
-    const id = await UsuarioRepository.convidar(emailNormalizado, `${env().FRONTEND_URL}/login`);
+    const senhaProvisoria = forma === 'senha' ? gerarSenhaProvisoria() : null;
+    const id = senhaProvisoria
+      ? await UsuarioRepository.criarContaComSenha(emailNormalizado, senhaProvisoria)
+      : await UsuarioRepository.convidar(emailNormalizado, `${env().FRONTEND_URL}/login`);
     try {
       const linha = await UsuarioRepository.inserir({ id, nome, email: emailNormalizado, tipo, ativo: true });
-      return new Usuario(linha);
+      return { usuario: new Usuario(linha), senhaProvisoria };
     } catch (erro) {
       // Não deixa conta do Auth sem cadastro em usuarios
       await UsuarioRepository.removerConta(id);
       throw erro;
     }
+  }
+
+  /** Gera outra senha provisória (a pessoa esqueceu a senha ou não recebeu o convite). */
+  async gerarNovaSenhaProvisoria(id: string): Promise<{ usuario: Usuario; senhaProvisoria: string }> {
+    const linha = await this.#buscar(id);
+    const senhaProvisoria = gerarSenhaProvisoria();
+    await UsuarioRepository.definirSenhaProvisoria(id, senhaProvisoria);
+    return { usuario: new Usuario(linha), senhaProvisoria };
   }
 
   /** Altera nome e e-mail. O e-mail muda também na conta do Auth, para o login continuar valendo. */
