@@ -108,7 +108,7 @@ export function CardDesenho({ desenho, acao, previa, confirmando, aoEscolher, ao
                 {!grupoCompleto && (
                   <button
                     onClick={() => aoEscolher({ tipo: 'projeto', projetoId: grupo.projetoId, desenho: desenho.desenho })}
-                    className="rounded border border-zinc-300 bg-white px-3 py-1 text-sm hover:bg-zinc-100"
+                    className="whitespace-nowrap rounded border-2 border-blue-600 bg-white px-3 py-1 text-sm font-semibold text-blue-700 hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                   >
                     Baixa pelo projeto
                   </button>
@@ -142,9 +142,10 @@ export function CardDesenho({ desenho, acao, previa, confirmando, aoEscolher, ao
                         ) : (
                           <button
                             onClick={() => aoEscolher({ tipo: 'maquina', item })}
-                            className="rounded border border-zinc-300 px-2 py-0.5 text-xs hover:bg-zinc-100"
+                            aria-label={`Dar baixa em ${item.desenho} · ${item.maquina} · ${dataBr(item.dataSolicitacao)}`}
+                            className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                           >
-                            Dar baixa
+                            <span aria-hidden="true">↓</span> Dar baixa
                           </button>
                         )}
                       </td>
