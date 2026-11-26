@@ -15,6 +15,7 @@ rotasItem.use(autenticar);
 
 rotasItem.get('/', autorizar(), ItemController.listar);
 rotasItem.get('/busca', autorizar(), RecebimentoController.buscarPorDesenho);
+rotasItem.get('/:id/recebimentos', autorizar(), ItemController.historico);
 rotasItem.put('/:id', autorizar(TipoUsuario.ENGENHEIRO), ItemController.alterar);
 rotasItem.delete('/:id', autorizar(TipoUsuario.ENGENHEIRO), ItemController.excluir);
 rotasItem.post('/:id/recebimentos', autorizar(TipoUsuario.ENCARREGADO), RecebimentoController.darBaixa);

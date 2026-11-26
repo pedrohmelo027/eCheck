@@ -17,6 +17,9 @@ export type ChaveUsuario = (typeof USUARIOS_FICTICIOS)[number]['chave'];
 /** Senha só do ambiente de desenvolvimento, igual para todos os fictícios. */
 export const SENHA_FICTICIA = 'Senha-Teste-123';
 
+/** Marca em app_metadata: a senha padrão já foi definida nesta conta. */
+const MARCA_SENHA = 'echeck_senha_ficticia';
+
 /**
  * Garante que os 5 usuários fictícios existem no Supabase Auth (com senha e e-mail confirmado)
  * e na tabela `usuarios`, com o tipo e a situação da seção 3. Pode rodar várias vezes.
@@ -29,15 +32,24 @@ export async function garantirUsuariosFicticios(): Promise<Record<ChaveUsuario, 
 
   const ids = {} as Record<ChaveUsuario, string>;
   for (const u of USUARIOS_FICTICIOS) {
-    let id = lista.users.find((conta) => conta.email === u.email)?.id;
+    const conta = lista.users.find((c) => c.email === u.email);
+    let id = conta?.id;
     if (!id) {
-      const { data, error } = await admin.createUser({ email: u.email, password: SENHA_FICTICIA, email_confirm: true });
+      const { data, error } = await admin.createUser({
+        email: u.email,
+        password: SENHA_FICTICIA,
+        email_confirm: true,
+        app_metadata: { [MARCA_SENHA]: true },
+      });
       if (error) throw error;
       id = data.user.id;
-    } else if (!(await senhaPadraoFunciona(u.email))) {
-      // Só redefine se a senha mudou: trocar a senha derruba as sessões abertas
-      // (ex.: quem está testando pelo front enquanto os testes rodam).
-      const { error } = await admin.updateUserById(id, { password: SENHA_FICTICIA });
+    } else if (!conta?.app_metadata?.[MARCA_SENHA]) {
+      // Só define a senha uma vez (a marca fica na conta): trocar a senha derruba as sessões
+      // abertas no front, e conferir com login a cada teste estoura o limite de logins do Auth.
+      const { error } = await admin.updateUserById(id, {
+        password: SENHA_FICTICIA,
+        app_metadata: { ...conta?.app_metadata, [MARCA_SENHA]: true },
+      });
       if (error) throw error;
     }
 
@@ -48,15 +60,6 @@ export async function garantirUsuariosFicticios(): Promise<Record<ChaveUsuario, 
     ids[u.chave] = id;
   }
   return ids;
-}
-
-async function senhaPadraoFunciona(email: string): Promise<boolean> {
-  try {
-    await entrar(email);
-    return true;
-  } catch {
-    return false;
-  }
 }
 
 /** Faz login real no Supabase Auth com a anon key e devolve o JWT. */
